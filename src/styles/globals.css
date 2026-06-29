@@ -1,0 +1,91 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-bg text-fg font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    transition: background-color 0.4s var(--ease-plume), color 0.4s var(--ease-plume);
+    overscroll-behavior-y: none;
+  }
+
+  ::selection {
+    background: var(--invert-bg);
+    color: var(--invert-fg);
+  }
+
+  /* Refined, low-profile scrollbar that suits both themes. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--tw-shadow, 0 0 0 3px var(--ring));
+    border-radius: 0.5rem;
+  }
+}
+
+@layer components {
+  /* Hairline divider used between feed items — almost invisible by design. */
+  .divider {
+    @apply border-b border-border;
+  }
+
+  /* The signal aura: a thin glow ring layered behind a post card. */
+  .signal-aura {
+    position: relative;
+  }
+  .signal-aura::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      150deg,
+      var(--signal) 0%,
+      var(--signal-soft) 30%,
+      transparent 55%,
+      var(--signal-soft) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .no-tap {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

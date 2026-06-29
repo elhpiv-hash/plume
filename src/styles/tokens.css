@@ -1,0 +1,84 @@
+/**
+ * Plume design tokens.
+ *
+ * Single source of truth for color, elevation and motion. Both themes live
+ * here so switching is a single `data-theme` flip on <html>. Components never
+ * hard-code a color — they consume these via the Tailwind theme mapping.
+ *
+ * Colors are stored as space-separated RGB channels (`--c-*`) so Tailwind's
+ * `rgb(var(--c-x) / <alpha-value>)` mapping makes every opacity modifier work
+ * (bg-signal/10, bg-bg/80, …). Hairline borders are derived from the foreground
+ * channel, so they invert correctly between themes for free. Resolved
+ * convenience vars are also exposed for raw CSS (shadows, gradients, SVG).
+ *
+ * Palette philosophy: monochrome graphite with a cool undertone (never pure
+ * #000), a clean true white for light. Accent comes from contrast and form —
+ * inverted buttons, hairline dividers, soft shadows — not from hue. The only
+ * warmth in the system is a near-invisible tint that appears on hover, plus a
+ * restrained champagne reserved exclusively for the "Signal of the day".
+ */
+
+:root {
+  --ease-plume: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Champagne signal accent — identical across themes for brand consistency. */
+  --c-signal: 216 195 154;
+  --signal: rgb(var(--c-signal));
+  --signal-soft: rgb(var(--c-signal) / 0.32);
+  --signal-glow: rgb(var(--c-signal) / 0.45);
+}
+
+/* ───────────────────────── Dark (default) ───────────────────────── */
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --c-bg: 13 14 17;
+  --c-elevated: 19 20 25;
+  --c-surface: 22 24 29;
+  --c-surface-hover: 29 28 26; /* faint warm graphite on hover */
+  --c-fg: 243 244 246;
+  --c-muted: 139 143 153;
+  --c-faint: 88 92 102;
+  --c-invert: 244 245 247;
+  --c-invert-fg: 13 14 17;
+  --c-invert-hover: 255 255 255;
+  --c-danger: 226 117 107;
+
+  --border: rgb(var(--c-fg) / 0.07);
+  --border-strong: rgb(var(--c-fg) / 0.14);
+  --text: rgb(var(--c-fg));
+  --danger: rgb(var(--c-danger));
+  --invert-bg: rgb(var(--c-invert));
+  --invert-fg: rgb(var(--c-invert-fg));
+
+  --shadow-color: rgba(0, 0, 0, 0.55);
+  --ring: rgb(var(--c-invert) / 0.16);
+}
+
+/* ───────────────────────────── Light ───────────────────────────── */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --c-bg: 255 255 255;
+  --c-elevated: 255 255 255;
+  --c-surface: 255 255 255;
+  --c-surface-hover: 246 245 242; /* faint warm paper on hover */
+  --c-fg: 16 18 22;
+  --c-muted: 104 109 118;
+  --c-faint: 162 167 175;
+  --c-invert: 16 18 22;
+  --c-invert-fg: 248 249 250;
+  --c-invert-hover: 37 39 45;
+  --c-danger: 197 72 60;
+
+  --border: rgb(var(--c-fg) / 0.09);
+  --border-strong: rgb(var(--c-fg) / 0.16);
+  --text: rgb(var(--c-fg));
+  --danger: rgb(var(--c-danger));
+  --invert-bg: rgb(var(--c-invert));
+  --invert-fg: rgb(var(--c-invert-fg));
+
+  --shadow-color: rgba(13, 14, 17, 0.12);
+  --ring: rgb(var(--c-invert) / 0.13);
+}
