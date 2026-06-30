@@ -52,12 +52,7 @@ export function Sidebar({ onCompose }: SidebarProps) {
         className="mb-4 self-center xl:self-start xl:pl-3"
         aria-label="Plume — на главную"
       >
-        <span className="xl:hidden">
-          <Logo variant="mark" size={22} />
-        </span>
-        <span className="hidden xl:inline-flex">
-          <Logo variant="full" size={22} />
-        </span>
+        <Logo />
       </button>
 
       <nav className="flex flex-1 flex-col gap-1">

@@ -39,7 +39,7 @@ export function AuthScreen() {
         <span className="pointer-events-none absolute -right-16 -top-10 text-fg/[0.04] lg:-right-10">
           <Icon name="feather" size={340} />
         </span>
-        <Logo variant="full" size={26} />
+        <Logo />
         <div className="relative mt-12 lg:mt-0">
           <h1 className="font-display text-display font-bold leading-[0.95] tracking-tight text-balance lg:text-hero">
             Лёгкая

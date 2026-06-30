@@ -4,6 +4,7 @@ import { Modal } from '@/components/ui/Modal';
 import { PostActions } from '@/components/post/PostActions';
 import { PostComposer } from '@/components/post/PostComposer';
 import { SignalBadge } from '@/components/post/SignalBadge';
+import { SignalFeathers } from '@/components/post/SignalFeathers';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/hooks/useNavigation';
 import { usePosts } from '@/hooks/usePosts';
@@ -31,18 +32,20 @@ export function PostCard({ post, animate = true }: PostCardProps) {
       className={cn(
         'relative px-4 py-3.5 transition-colors duration-200',
         post.isSignalToday
-          ? 'signal-aura rounded-lg my-1.5 bg-signal/[0.025]'
+          ? 'signal-aura overflow-hidden rounded-lg my-1.5 bg-signal/[0.025]'
           : 'border-b border-border hover:bg-surface-hover/60',
         animate && 'animate-post-enter',
       )}
     >
+      {post.isSignalToday ? <SignalFeathers /> : null}
+
       {post.isSignalToday ? (
-        <div className="mb-2 pl-[3.25rem]">
+        <div className="relative mb-2 pl-[3.25rem]">
           <SignalBadge />
         </div>
       ) : null}
 
-      <div className="flex gap-3">
+      <div className="relative flex gap-3">
         <button type="button" onClick={goToAuthor} className="self-start no-tap" aria-label={`Профиль ${post.author.name}`}>
           <Avatar user={post.author} size="md" />
         </button>

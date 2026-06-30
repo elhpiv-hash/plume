@@ -3,7 +3,6 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Modal } from '@/components/ui/Modal';
 import { Icon } from '@/components/ui/Icon';
-import { Logo } from '@/components/ui/Logo';
 import { SignalBadge } from '@/components/post/SignalBadge';
 import { PostComposer } from '@/components/post/PostComposer';
 import { useNavigation } from '@/hooks/useNavigation';
@@ -61,12 +60,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <Icon name="back" size={20} />
             </button>
-          ) : (
-            <span className="lg:hidden">
-              <Logo variant="mark" size={20} />
-            </span>
-          )}
+          ) : null}
           <h1 className="font-display text-lg font-bold tracking-tight">{title}</h1>
+          {route.name === 'feed' ? (
+            <span className="ml-auto animate-float text-signal" aria-hidden>
+              <Icon name="feather" size={22} />
+            </span>
+          ) : null}
         </header>
 
         <div className="pb-24 lg:pb-10">{children}</div>

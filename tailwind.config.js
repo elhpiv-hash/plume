@@ -79,6 +79,16 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        'feather-fall': {
+          '0%': { transform: 'translate(0, -30px) rotate(-12deg)', opacity: '0' },
+          '12%': { opacity: '0.7' },
+          '86%': { opacity: '0.45' },
+          '100%': { transform: 'translate(18px, 220px) rotate(150deg)', opacity: '0' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '50%': { transform: 'translateY(-6px) rotate(8deg)' },
+        },
       },
       animation: {
         'post-enter': 'post-enter 0.45s var(--ease-plume) both',
@@ -87,6 +97,8 @@ export default {
         'sheet-up': 'sheet-up 0.34s var(--ease-plume) both',
         'signal-pulse': 'signal-pulse 3.2s ease-in-out infinite',
         'toast-in': 'toast-in 0.3s var(--ease-plume) both',
+        'feather-fall': 'feather-fall 6s linear infinite',
+        float: 'float 4s ease-in-out infinite',
       },
     },
   },
