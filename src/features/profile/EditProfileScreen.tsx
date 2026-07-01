@@ -43,6 +43,7 @@ export function EditProfileScreen() {
   const [showYear, setShowYear] = useState(currentUser?.birthday?.showYear ?? true);
 
   const [nameError, setNameError] = useState<string | null>(null);
+  const [bioError, setBioError] = useState<string | null>(null);
   const [schoolError, setSchoolError] = useState<string | null>(null);
   const [linkErrors, setLinkErrors] = useState<(string | null)[]>([]);
 
@@ -59,14 +60,16 @@ export function EditProfileScreen() {
   const save = () => {
     // Validation + profanity gate produce i18n keys; resolve them for display.
     const nameKey = validateName(name) ?? (containsProfanity(name) ? 'profanity.blocked' : null);
+    const bioKey = containsProfanity(bio) ? 'profanity.blocked' : null;
     const schoolKey = containsProfanity(school) ? 'profanity.blocked' : null;
     const linkKeys = links.map((l) => (l.url.trim() ? validateUrl(l.url) : null));
 
     setNameError(nameKey ? t(nameKey) : null);
+    setBioError(bioKey ? t(bioKey) : null);
     setSchoolError(schoolKey ? t(schoolKey) : null);
     setLinkErrors(linkKeys.map((k) => (k ? t(k) : null)));
 
-    if (nameKey || schoolKey || bioOver || linkKeys.some((k) => k !== null)) {
+    if (nameKey || bioKey || schoolKey || bioOver || linkKeys.some((k) => k !== null)) {
       notify(t('edit.checkFields'), 'danger');
       return;
     }
@@ -145,18 +148,28 @@ export function EditProfileScreen() {
           <textarea
             id="edit-bio"
             value={bio}
-            onChange={(e) => setBio(e.target.value)}
+            onChange={(e) => {
+              setBio(e.target.value);
+              setBioError(null);
+            }}
             rows={3}
             placeholder={t('edit.bio.placeholder')}
             className={cn(
               'w-full resize-none rounded-md border bg-elevated p-3 text-base text-fg',
               'outline-none placeholder:text-faint focus:border-border-strong',
-              bioOver ? 'border-danger' : 'border-border',
+              bioOver || bioError ? 'border-danger' : 'border-border',
             )}
           />
-          <span className={cn('self-end text-xs tabular-nums', bioOver ? 'text-danger' : 'text-faint')}>
-            {BIO_MAX - bio.length}
-          </span>
+          <div className="flex items-center justify-between">
+            {bioError ? (
+              <span className="text-sm text-danger animate-fade-in">{bioError}</span>
+            ) : (
+              <span />
+            )}
+            <span className={cn('text-xs tabular-nums', bioOver ? 'text-danger' : 'text-faint')}>
+              {BIO_MAX - bio.length}
+            </span>
+          </div>
         </div>
 
         <Input

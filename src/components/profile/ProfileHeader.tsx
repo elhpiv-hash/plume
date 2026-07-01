@@ -9,6 +9,7 @@ import { useData } from '@/hooks/useData';
 import { useNavigation } from '@/hooks/useNavigation';
 import { useI18n } from '@/hooks/useI18n';
 import { formatBirthday, formatJoinDate } from '@/lib/formatTime';
+import { containsProfanity } from '@/lib/profanity';
 import { cn } from '@/lib/cn';
 import type { User } from '@/types';
 
@@ -40,6 +41,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   const { t } = useI18n();
   const [editOpen, setEditOpen] = useState(false);
   const [bioDraft, setBioDraft] = useState(user.bio);
+  const [bioError, setBioError] = useState<string | null>(null);
 
   const isOwn = currentUser?.id === user.id;
   const isFollowing = currentUser ? data.isFollowing(currentUser.id, user.id) : false;
@@ -52,6 +54,10 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   };
 
   const saveBio = () => {
+    if (containsProfanity(bioDraft)) {
+      setBioError(t('profanity.blocked'));
+      return;
+    }
     data.updateBio(user.id, bioDraft);
     setEditOpen(false);
   };
@@ -155,16 +161,24 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           value={bioDraft}
           maxLength={BIO_MAX}
           autoFocus
-          onChange={(e) => setBioDraft(e.target.value)}
+          onChange={(e) => {
+            setBioDraft(e.target.value);
+            setBioError(null);
+          }}
           rows={3}
           placeholder={t('edit.bio.placeholder')}
           className={cn(
-            'w-full resize-none rounded-md border border-border bg-surface p-3 text-base text-fg',
+            'w-full resize-none rounded-md border bg-surface p-3 text-base text-fg',
             'outline-none placeholder:text-faint focus:border-border-strong',
+            bioError ? 'border-danger' : 'border-border',
           )}
         />
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-xs text-faint tabular-nums">{BIO_MAX - bioDraft.length}</span>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          {bioError ? (
+            <span className="text-sm text-danger animate-fade-in">{bioError}</span>
+          ) : (
+            <span className="text-xs text-faint tabular-nums">{BIO_MAX - bioDraft.length}</span>
+          )}
           <Button size="sm" onClick={saveBio}>
             {t('edit.save')}
           </Button>

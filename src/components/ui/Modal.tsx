@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
 import { Icon } from '@/components/ui/Icon';
 import { useI18n } from '@/hooks/useI18n';
@@ -35,7 +36,9 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
 
   if (!open) return null;
 
-  return (
+  // Portal to <body> so `fixed` positioning is viewport-relative and never
+  // trapped by a transformed/filtered ancestor (e.g. a card mid-animation).
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
       role="dialog"
@@ -73,6 +76,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
