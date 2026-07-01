@@ -8,6 +8,7 @@ import { SignalFeathers } from '@/components/post/SignalFeathers';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/hooks/useNavigation';
 import { usePosts } from '@/hooks/usePosts';
+import { useI18n } from '@/hooks/useI18n';
 import { formatTimeShort } from '@/lib/formatTime';
 import { cn } from '@/lib/cn';
 import type { PostView } from '@/types';
@@ -22,6 +23,7 @@ export function PostCard({ post, animate = true }: PostCardProps) {
   const { currentUser } = useAuth();
   const { navigate } = useNavigation();
   const { toggleLike, toggleRepost, raiseSignal, signalAvailable } = usePosts();
+  const { t } = useI18n();
   const [replyOpen, setReplyOpen] = useState(false);
 
   const isAuthor = currentUser?.id === post.authorId;
@@ -46,7 +48,7 @@ export function PostCard({ post, animate = true }: PostCardProps) {
       ) : null}
 
       <div className="relative flex gap-3">
-        <button type="button" onClick={goToAuthor} className="self-start no-tap" aria-label={`Профиль ${post.author.name}`}>
+        <button type="button" onClick={goToAuthor} className="self-start no-tap" aria-label={t('post.authorProfile', { name: post.author.name })}>
           <Avatar user={post.author} size="md" />
         </button>
 
@@ -88,7 +90,7 @@ export function PostCard({ post, animate = true }: PostCardProps) {
         </div>
       </div>
 
-      <Modal open={replyOpen} onClose={() => setReplyOpen(false)} title="Ответ">
+      <Modal open={replyOpen} onClose={() => setReplyOpen(false)} title={t('post.reply.title')}>
         <div className="mb-4 rounded-md border border-border bg-surface p-3">
           <div className="flex items-center gap-1.5 text-sm">
             <span className="font-display font-semibold">{post.author.name}</span>

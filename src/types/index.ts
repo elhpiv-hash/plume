@@ -28,6 +28,8 @@ export interface User {
   birthday?: Birthday | null;
   work?: string;
   education?: string;
+  /** Free-text school name (no global directory exists). */
+  school?: string;
   /** Resized data URL; null/undefined → initials fallback. */
   avatarUrl?: string | null;
   coverUrl?: string | null;
@@ -63,7 +65,7 @@ export interface AnthemTrack {
 export type ProfilePatch = Partial<
   Pick<
     User,
-    'name' | 'bio' | 'location' | 'links' | 'birthday' | 'work' | 'education' | 'avatarUrl' | 'coverUrl'
+    'name' | 'bio' | 'location' | 'links' | 'birthday' | 'work' | 'education' | 'school' | 'avatarUrl' | 'coverUrl'
   >
 >;
 

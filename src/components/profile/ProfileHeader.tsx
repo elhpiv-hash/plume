@@ -3,25 +3,17 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { Icon } from '@/components/ui/Icon';
+import { ExternalLink } from '@/components/ui/ExternalLink';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { useNavigation } from '@/hooks/useNavigation';
+import { useI18n } from '@/hooks/useI18n';
 import { formatBirthday, formatJoinDate } from '@/lib/formatTime';
-import { normalizeUrl } from '@/lib/validators';
 import { cn } from '@/lib/cn';
 import type { User } from '@/types';
 
 interface ProfileHeaderProps {
   user: User;
-}
-
-/** Хост ссылки как запасной заголовок, если label не задан. */
-function linkHost(url: string): string {
-  try {
-    return new URL(normalizeUrl(url)).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
 }
 
 interface CountProps {
@@ -45,6 +37,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
   const { currentUser } = useAuth();
   const data = useData();
   const { navigate } = useNavigation();
+  const { t } = useI18n();
   const [editOpen, setEditOpen] = useState(false);
   const [bioDraft, setBioDraft] = useState(user.bio);
 
@@ -75,11 +68,11 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         <Avatar user={user} size="xl" className="ring-2 ring-border" />
         {isOwn ? (
           <Button variant="secondary" size="sm" onClick={() => navigate({ name: 'edit-profile' })}>
-            Редактировать
+            {t('profile.edit')}
           </Button>
         ) : (
           <Button variant={isFollowing ? 'secondary' : 'primary'} size="sm" onClick={onFollow}>
-            {isFollowing ? 'Вы подписаны' : 'Подписаться'}
+            {isFollowing ? t('profile.following') : t('profile.follow')}
           </Button>
         )}
       </div>
@@ -97,11 +90,11 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
           onClick={() => setEditOpen(true)}
           className="mt-3 inline-flex items-center gap-1.5 text-[0.95rem] text-muted hover:text-fg transition-colors"
         >
-          <Icon name="plus" size={16} /> Добавь пару слов о себе
+          <Icon name="plus" size={16} /> {t('profile.addBio')}
         </button>
       ) : null}
 
-      {(user.location || user.work || user.education || user.birthday) ? (
+      {(user.location || user.work || user.education || user.school || user.birthday) ? (
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
           {user.location ? (
             <span className="inline-flex max-w-[14rem] items-center gap-1.5">
@@ -121,6 +114,12 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
               <span className="truncate">{user.education}</span>
             </span>
           ) : null}
+          {user.school ? (
+            <span className="inline-flex max-w-[14rem] items-center gap-1.5">
+              <Icon name="cap" size={15} />
+              <span className="truncate">{user.school}</span>
+            </span>
+          ) : null}
           {user.birthday ? (
             <span className="inline-flex items-center gap-1.5">
               <Icon name="cake" size={15} />
@@ -133,37 +132,32 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
       {user.links && user.links.length > 0 ? (
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1.5">
           {user.links.map((link, i) => (
-            <a
-              key={`${link.url}-${i}`}
-              href={normalizeUrl(link.url)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex max-w-[16rem] items-center gap-1.5 text-sm text-fg underline-offset-2 hover:underline"
-            >
-              <Icon name="link" size={15} className="text-muted" />
-              <span className="truncate">{link.label || linkHost(link.url)}</span>
-            </a>
+            <ExternalLink key={`${link.url}-${i}`} url={link.url} label={link.label} />
           ))}
         </div>
       ) : null}
 
       <p className="mt-3 flex items-center gap-1.5 text-sm text-muted">
-        <Icon name="feather" size={15} />В Plume с {formatJoinDate(user.createdAt)}
+        <Icon name="feather" size={15} />
+        {t('profile.joined', { date: formatJoinDate(user.createdAt) })}
       </p>
 
       <div className="mt-3 flex items-center gap-5">
-        <Count value={following} label="в подписках" />
-        <Count value={followers} label={followers === 1 ? 'подписчик' : 'подписчиков'} />
+        <Count value={following} label={t('profile.count.following')} />
+        <Count
+          value={followers}
+          label={followers === 1 ? t('profile.count.followers.one') : t('profile.count.followers.many')}
+        />
       </div>
 
-      <Modal open={editOpen} onClose={() => setEditOpen(false)} title="О себе">
+      <Modal open={editOpen} onClose={() => setEditOpen(false)} title={t('profile.bio.title')}>
         <textarea
           value={bioDraft}
           maxLength={BIO_MAX}
           autoFocus
           onChange={(e) => setBioDraft(e.target.value)}
           rows={3}
-          placeholder="Кто ты, чем дышишь?"
+          placeholder={t('edit.bio.placeholder')}
           className={cn(
             'w-full resize-none rounded-md border border-border bg-surface p-3 text-base text-fg',
             'outline-none placeholder:text-faint focus:border-border-strong',
@@ -172,7 +166,7 @@ export function ProfileHeader({ user }: ProfileHeaderProps) {
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xs text-faint tabular-nums">{BIO_MAX - bioDraft.length}</span>
           <Button size="sm" onClick={saveBio}>
-            Сохранить
+            {t('edit.save')}
           </Button>
         </div>
       </Modal>

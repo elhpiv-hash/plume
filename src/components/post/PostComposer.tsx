@@ -3,7 +3,10 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { usePosts } from '@/hooks/usePosts';
+import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/hooks/useI18n';
 import { POST_MAX, validatePostText } from '@/lib/validators';
+import { containsProfanity } from '@/lib/profanity';
 import { cn } from '@/lib/cn';
 import type { ID } from '@/types';
 
@@ -59,6 +62,8 @@ export function PostComposer({
 }: PostComposerProps) {
   const { currentUser } = useAuth();
   const { publish } = usePosts();
+  const { notify } = useToast();
+  const { t } = useI18n();
   const [text, setText] = useState('');
   const [touched, setTouched] = useState(false);
   const areaRef = useRef<HTMLTextAreaElement>(null);
@@ -79,6 +84,11 @@ export function PostComposer({
   const submit = () => {
     setTouched(true);
     if (!canPublish) return;
+    // Front-end profanity gate — a first barrier, easily bypassed by design.
+    if (containsProfanity(text)) {
+      notify(t('profanity.blocked'), 'danger');
+      return;
+    }
     publish(text, parentId);
     setText('');
     setTouched(false);
@@ -93,7 +103,7 @@ export function PostComposer({
     }
   };
 
-  const defaultPlaceholder = parentId ? 'Ответь пером…' : 'Что в воздухе?';
+  const defaultPlaceholder = parentId ? t('composer.replyPlaceholder') : t('composer.placeholder');
 
   return (
     <div className={cn('flex gap-3', compact ? 'py-2' : 'p-4')}>
@@ -114,16 +124,18 @@ export function PostComposer({
           )}
         />
         {touched && error ? (
-          <p className="text-sm text-danger animate-fade-in">{error}</p>
+          <p className="text-sm text-danger animate-fade-in">
+            {t(error, { over: Math.max(0, text.length - POST_MAX) })}
+          </p>
         ) : null}
         <div className="mt-2 flex items-center justify-between border-t border-border pt-3">
           <span className="text-xs text-faint">
-            {parentId ? 'Ответ виден в профиле' : '⌘↵ чтобы опубликовать'}
+            {parentId ? t('composer.replyContext') : t('composer.hint')}
           </span>
           <div className="flex items-center gap-3">
             {text.length > 0 ? <CharMeter value={text.length} /> : null}
             <Button size="sm" onClick={submit} disabled={!canPublish}>
-              {parentId ? 'Ответить' : 'Опубликовать'}
+              {parentId ? t('composer.reply') : t('composer.publish')}
             </Button>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { Logo } from '@/components/ui/Logo';
 import { LoginForm } from '@/features/auth/LoginForm';
 import { RegisterForm } from '@/features/auth/RegisterForm';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
 
 type Mode = 'start' | 'login' | 'register';
@@ -29,8 +30,9 @@ function ProviderStub({ icon, label, onClick }: { icon: 'apple' | 'phone'; label
 export function AuthScreen() {
   const [mode, setMode] = useState<Mode>('start');
   const { notify } = useToast();
+  const { t } = useI18n();
 
-  const soon = () => notify('Этот вход добавим позже. Пока — через @юзернейм.');
+  const soon = () => notify(t('auth.provider.soon'));
 
   return (
     <div className="flex min-h-[100dvh] flex-col lg:flex-row">
@@ -42,18 +44,14 @@ export function AuthScreen() {
         <Logo />
         <div className="relative mt-12 lg:mt-0">
           <h1 className="font-display text-display font-bold leading-[0.95] tracking-tight text-balance lg:text-hero">
-            Лёгкая
-            <br />
-            социальная
-            <br />
-            сеть.
+            {t('auth.brand.title')}
           </h1>
           <p className="mt-5 max-w-sm text-lg leading-relaxed text-muted text-balance">
-            Никаких лишних деталей — только твой голос. Напиши первое перо и подними Сигнал дня.
+            {t('auth.brand.subtitle')}
           </p>
         </div>
         <p className="relative mt-12 hidden text-sm text-faint lg:block">
-          Прототип. Всё работает в памяти сессии — старт с чистого листа.
+          {t('auth.brand.footer')}
         </p>
       </section>
 
@@ -63,33 +61,33 @@ export function AuthScreen() {
           {mode === 'start' ? (
             <div className="flex flex-col gap-4">
               <header className="mb-2 text-center">
-                <h2 className="font-display text-2xl font-bold tracking-tight">Добро в Plume</h2>
-                <p className="mt-1 text-base text-muted">Заходи или заводи аккаунт за полминуты.</p>
+                <h2 className="font-display text-2xl font-bold tracking-tight">{t('auth.start.title')}</h2>
+                <p className="mt-1 text-base text-muted">{t('auth.start.subtitle')}</p>
               </header>
               <Button size="lg" fullWidth onClick={() => setMode('register')}>
-                Создать аккаунт
+                {t('auth.start.create')}
               </Button>
               <Button variant="secondary" size="lg" fullWidth onClick={() => setMode('login')}>
-                Войти
+                {t('auth.start.login')}
               </Button>
 
               <div className="my-2 flex items-center gap-3 text-xs text-faint">
                 <span className="h-px flex-1 bg-border" />
-                или
+                {t('auth.start.or')}
                 <span className="h-px flex-1 bg-border" />
               </div>
 
-              <ProviderStub icon="apple" label="Войти через Apple" onClick={soon} />
-              <ProviderStub icon="phone" label="Продолжить по номеру" onClick={soon} />
+              <ProviderStub icon="apple" label={t('auth.provider.apple')} onClick={soon} />
+              <ProviderStub icon="phone" label={t('auth.provider.phone')} onClick={soon} />
             </div>
           ) : (
             <div className="flex flex-col gap-6">
               <header>
                 <h2 className="font-display text-2xl font-bold tracking-tight">
-                  {mode === 'login' ? 'С возвращением' : 'Создай аккаунт'}
+                  {mode === 'login' ? t('auth.login.title') : t('auth.register.title')}
                 </h2>
                 <p className="mt-1 text-base text-muted">
-                  {mode === 'login' ? 'Войди под своим @юзернеймом.' : 'Пара полей — и ты в воздухе.'}
+                  {mode === 'login' ? t('auth.login.subtitle') : t('auth.register.subtitle')}
                 </p>
               </header>
 
@@ -104,7 +102,7 @@ export function AuthScreen() {
                 onClick={() => setMode('start')}
                 className="self-center text-sm text-muted hover:text-fg transition-colors"
               >
-                ← Назад
+                {t('auth.back')}
               </button>
             </div>
           )}

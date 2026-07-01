@@ -1,18 +1,22 @@
 /**
- * Field validation with messages written in the product voice. Returns either
- * null (valid) or a human, non-scolding error string.
+ * Field validation. Each rule returns either null (valid) or an i18n key that
+ * the UI resolves via `t(...)` in the active language. The messages themselves
+ * live in the locale dictionaries, keeping the product voice per-locale while
+ * these rules stay pure and language-agnostic.
  */
+
+import type { TranslationKey } from '@/i18n/types';
 
 export const POST_MAX = 280;
 
 export interface FieldRule {
-  validate: (value: string) => string | null;
+  validate: (value: string) => TranslationKey | null;
 }
 
-export function validateName(value: string): string | null {
+export function validateName(value: string): TranslationKey | null {
   const v = value.trim();
-  if (!v) return 'Как тебя звать? Без имени никак.';
-  if (v.length > 40) return 'Имя длинновато — до 40 символов.';
+  if (!v) return 'validate.name.required';
+  if (v.length > 40) return 'validate.name.tooLong';
   return null;
 }
 
@@ -21,26 +25,26 @@ export function normalizeUsername(value: string): string {
   return value.trim().replace(/^@+/, '').toLowerCase();
 }
 
-export function validateUsername(value: string): string | null {
+export function validateUsername(value: string): TranslationKey | null {
   const v = normalizeUsername(value);
-  if (!v) return 'Придумай @юзернейм — это твой адрес в Plume.';
-  if (v.length < 3) return 'Коротковато. Минимум 3 символа.';
-  if (v.length > 20) return 'Длинновато. Максимум 20 символов.';
-  if (!/^[a-z0-9_]+$/.test(v)) return 'Только латиница, цифры и нижнее подчёркивание.';
-  if (/^[0-9]/.test(v)) return 'Пусть начинается с буквы.';
+  if (!v) return 'validate.username.required';
+  if (v.length < 3) return 'validate.username.tooShort';
+  if (v.length > 20) return 'validate.username.tooLong';
+  if (!/^[a-z0-9_]+$/.test(v)) return 'validate.username.charset';
+  if (/^[0-9]/.test(v)) return 'validate.username.startsWithLetter';
   return null;
 }
 
-export function validatePassword(value: string): string | null {
-  if (!value) return 'Нужен пароль — хотя бы для виду.';
-  if (value.length < 6) return 'Минимум 6 символов, так надёжнее.';
+export function validatePassword(value: string): TranslationKey | null {
+  if (!value) return 'validate.password.required';
+  if (value.length < 6) return 'validate.password.tooShort';
   return null;
 }
 
-export function validatePostText(value: string): string | null {
+export function validatePostText(value: string): TranslationKey | null {
   const v = value.trim();
-  if (!v) return 'Пустое перо не взлетит.';
-  if (value.length > POST_MAX) return `Слишком длинно — на ${value.length - POST_MAX} символов больше нормы.`;
+  if (!v) return 'validate.post.empty';
+  if (value.length > POST_MAX) return 'validate.post.tooLong';
   return null;
 }
 
@@ -52,18 +56,18 @@ export function normalizeUrl(value: string): string {
   return `https://${v}`;
 }
 
-/** URL валиден или пуст (поле опционально). Сообщение — в голосе интерфейса. */
-export function validateUrl(value: string): string | null {
+/** URL валиден или пуст (поле опционально). Возвращает i18n-ключ ошибки. */
+export function validateUrl(value: string): TranslationKey | null {
   const v = value.trim();
   if (!v) return null;
   try {
     const url = new URL(normalizeUrl(v));
     if (url.protocol !== 'http:' && url.protocol !== 'https:') {
-      return 'Ссылка должна начинаться с http(s).';
+      return 'validate.url.scheme';
     }
-    if (!url.hostname.includes('.')) return 'Похоже, это не ссылка. Проверь адрес.';
+    if (!url.hostname.includes('.')) return 'validate.url.invalid';
     return null;
   } catch {
-    return 'Похоже, это не ссылка. Проверь адрес.';
+    return 'validate.url.invalid';
   }
 }

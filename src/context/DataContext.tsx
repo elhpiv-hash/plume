@@ -25,6 +25,7 @@ import {
 import { calendarDay } from '@/lib/formatTime';
 import { createId } from '@/lib/id';
 import { normalizeUsername } from '@/lib/validators';
+import { useI18n } from '@/hooks/useI18n';
 import {
   err,
   ok,
@@ -71,6 +72,7 @@ export interface DataContextValue {
 export const DataContext = createContext<DataContextValue | null>(null);
 
 export function DataProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
   const [state, dispatch] = useReducer(dataReducer, initialDataState);
 
   // Mutations need to read the freshest state synchronously (e.g. uniqueness
@@ -111,7 +113,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       registerUser: (input) => {
         const username = normalizeUsername(input.username);
         if (isUsernameTaken(stateRef.current, username)) {
-          return err(`@${username} уже занят. Попробуй другой.`);
+          return err(t('error.username.taken', { username }));
         }
         const user: User = {
           id: createId('usr'),
@@ -128,7 +130,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const handle = normalizeUsername(username);
         const user = selectUserByUsername(stateRef.current, handle);
         if (!user || stateRef.current.passwords[user.id] !== password) {
-          return err('Не сходится. Проверь @юзернейм и пароль.');
+          return err(t('error.auth.failed'));
         }
         return ok(user);
       },
@@ -160,15 +162,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const today = calendarDay();
         const existing = selectSignalOfDay(stateRef.current, userId, today);
         if (existing) {
-          return err('Сигнал дня уже выбран. Один в сутки — таков ритуал.');
+          return err(t('error.signal.alreadyChosen'));
         }
         dispatch({ type: 'SET_SIGNAL', postId, userId, day: today });
         return ok(undefined);
       },
     };
     // `state` is intentionally a dependency: a fresh value object on every
-    // dispatch is what propagates updates to context consumers.
-  }, [state, mapViews]);
+    // dispatch is what propagates updates to context consumers. `t` is included
+    // so freshly-produced result errors track the active locale.
+  }, [state, mapViews, t]);
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

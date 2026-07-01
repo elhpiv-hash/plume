@@ -7,42 +7,42 @@ import { SignalBadge } from '@/components/post/SignalBadge';
 import { PostComposer } from '@/components/post/PostComposer';
 import { useNavigation } from '@/hooks/useNavigation';
 import { usePosts } from '@/hooks/usePosts';
+import { useI18n } from '@/hooks/useI18n';
+import type { TranslationKey } from '@/i18n/types';
 
-const ROUTE_TITLE: Record<string, string> = {
-  feed: 'Лента',
-  profile: 'Профиль',
-  settings: 'Настройки',
-  'edit-profile': 'Редактировать профиль',
+const ROUTE_TITLE: Record<string, TranslationKey> = {
+  feed: 'route.feed',
+  profile: 'route.profile',
+  settings: 'route.settings',
+  'edit-profile': 'route.editProfile',
 };
 
 /** The right rail: a quiet explainer for the Signal ritual + live availability. */
 function RightRail() {
   const { signalAvailable } = usePosts();
+  const { t } = useI18n();
   return (
     <aside className="sticky top-0 hidden h-screen w-80 shrink-0 flex-col gap-4 px-5 py-6 xl:flex">
       <div className="rounded-lg border border-border bg-surface p-5">
         <div className="flex items-center justify-between">
           <SignalBadge />
         </div>
-        <p className="mt-3 text-base leading-relaxed text-muted">
-          Раз в сутки ты можешь поднять одно перо как{' '}
-          <span className="text-fg">Сигнал дня</span> — оно засветится в ленте и закрепится в профиле.
-        </p>
+        <p className="mt-3 text-base leading-relaxed text-muted">{t('rightRail.desc')}</p>
         <p className="mt-3 text-sm text-faint">
-          {signalAvailable ? 'Сегодня сигнал ещё свободен.' : 'На сегодня сигнал уже поднят.'}
+          {signalAvailable ? t('rightRail.free') : t('rightRail.used')}
         </p>
       </div>
-      <p className="px-2 text-xs leading-relaxed text-faint">
-        Plume — лёгкая социальная сеть. Прототип: всё живёт в памяти сессии.
-      </p>
+      <p className="px-2 text-xs leading-relaxed text-faint">{t('rightRail.tagline')}</p>
     </aside>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { route, back, canGoBack } = useNavigation();
+  const { t } = useI18n();
   const [composeOpen, setComposeOpen] = useState(false);
-  const title = ROUTE_TITLE[route.name] ?? 'Plume';
+  const titleKey = ROUTE_TITLE[route.name];
+  const title = titleKey ? t(titleKey) : 'Plume';
 
   return (
     <div className="mx-auto flex w-full max-w-[1280px]">
@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={back}
-              aria-label="Назад"
+              aria-label={t('nav.back')}
               className="grid h-9 w-9 place-items-center rounded-full text-fg hover:bg-surface-hover transition-colors"
             >
               <Icon name="back" size={20} />
@@ -76,7 +76,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <MobileNav onCompose={() => setComposeOpen(true)} />
 
-      <Modal open={composeOpen} onClose={() => setComposeOpen(false)} title="Новое перо">
+      <Modal open={composeOpen} onClose={() => setComposeOpen(false)} title={t('compose.title')}>
         <PostComposer autoFocus onPublished={() => setComposeOpen(false)} />
       </Modal>
     </div>

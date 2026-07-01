@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { useNavigation } from '@/hooks/useNavigation';
+import { useI18n } from '@/hooks/useI18n';
 import type { PostView } from '@/types';
 
 interface ProfileScreenProps {
@@ -18,6 +19,7 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
   const data = useData();
   const { currentUser } = useAuth();
   const { navigate } = useNavigation();
+  const { t } = useI18n();
   const [tab, setTab] = useState<ProfileTab>('posts');
 
   const user = data.getUserByUsername(username);
@@ -26,9 +28,9 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
     return (
       <EmptyState
         icon="user"
-        title="Аккаунт не найден"
-        description={`@${username} пока не существует в Plume.`}
-        action={<Button variant="secondary" onClick={() => navigate({ name: 'feed' })}>В ленту</Button>}
+        title={t('profile.notFound.title')}
+        description={t('profile.notFound.desc', { username })}
+        action={<Button variant="secondary" onClick={() => navigate({ name: 'feed' })}>{t('profile.notFound.cta')}</Button>}
       />
     );
   }
@@ -54,8 +56,8 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
         <div>
           <EmptyState
             icon="feather"
-            title="Профиль ждёт первого пера"
-            description="Здесь будут жить твои посты. Начни прямо сейчас — это займёт секунду."
+            title={t('profile.empty.own.title')}
+            description={t('profile.empty.own.desc')}
           />
           <div className="mx-4 mb-6 rounded-lg border border-border bg-surface">
             <PostComposer />
@@ -64,14 +66,14 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
       ) : tab === 'posts' ? (
         <EmptyState
           icon="feather"
-          title="Здесь пока пусто"
-          description={`${user.name} ещё не написал(а) ни одного пера.`}
+          title={t('profile.empty.other.title')}
+          description={t('profile.empty.other.desc', { name: user.name })}
         />
       ) : (
         <EmptyState
           icon="reply"
-          title="Ответов нет"
-          description={isOwn ? 'Ответишь кому-нибудь — появятся здесь.' : `${user.name} пока никому не отвечал(а).`}
+          title={t('profile.replies.empty.title')}
+          description={isOwn ? t('profile.replies.empty.own') : t('profile.replies.empty.other', { name: user.name })}
         />
       )}
     </div>

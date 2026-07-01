@@ -1,4 +1,5 @@
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
 import type { PostView } from '@/types';
 
@@ -69,19 +70,20 @@ function ActionButton({
 }
 
 export function PostActions({ post, onReply, onRepost, onLike, signal }: PostActionsProps) {
+  const { t } = useI18n();
   return (
     <div className="mt-2 flex items-center justify-between pr-2 max-w-md">
-      <ActionButton icon="reply" label="Ответить" count={post.replyCount} onClick={onReply} />
+      <ActionButton icon="reply" label={t('action.reply')} count={post.replyCount} onClick={onReply} />
       <ActionButton
         icon="repost"
-        label="Репост"
+        label={t('action.repost')}
         count={post.repostCount}
         active={post.repostedByMe}
         onClick={onRepost}
       />
       <ActionButton
         icon="heart"
-        label="Нравится"
+        label={t('action.like')}
         count={post.likeCount}
         active={post.likedByMe}
         filled={post.likedByMe}
@@ -90,7 +92,7 @@ export function PostActions({ post, onReply, onRepost, onLike, signal }: PostAct
       {signal?.canRaise ? (
         <ActionButton
           icon="feather"
-          label={signal.available ? 'Сделать сигналом дня' : 'Сигнал дня уже выбран'}
+          label={signal.available ? t('signal.raise') : t('signal.chosen')}
           tone="signal"
           active={!signal.available}
           disabled={!signal.available}

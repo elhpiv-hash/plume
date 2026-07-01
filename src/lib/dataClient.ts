@@ -97,6 +97,7 @@ export function dataReducer(state: DataState, action: DataAction): DataState {
       if (patch.birthday !== undefined) next.birthday = patch.birthday;
       if (patch.work !== undefined) next.work = patch.work;
       if (patch.education !== undefined) next.education = patch.education;
+      if (patch.school !== undefined) next.school = patch.school;
       if (patch.avatarUrl !== undefined) next.avatarUrl = patch.avatarUrl;
       if (patch.coverUrl !== undefined) next.coverUrl = patch.coverUrl;
       return {

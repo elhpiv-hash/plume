@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 import { Icon } from '@/components/ui/Icon';
+import { useI18n } from '@/hooks/useI18n';
 
 interface ModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ interface ModalProps {
  * desktop.
  */
 export function Modal({ open, onClose, title, children, className }: ModalProps) {
+  const { t } = useI18n();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -42,32 +44,34 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
     >
       <button
         type="button"
-        aria-label="Закрыть"
+        aria-label={t('modal.close')}
         onClick={onClose}
         className="absolute inset-0 bg-black/55 backdrop-blur-[2px] animate-fade-in"
       />
       <div
         className={cn(
-          'relative w-full bg-elevated shadow-lift border border-border',
-          'rounded-t-xl sm:rounded-xl sm:max-w-lg sm:mx-4',
+          'relative flex max-h-[92dvh] w-full flex-col overflow-hidden bg-elevated shadow-lift border border-border',
+          'rounded-t-xl sm:rounded-xl sm:max-w-lg sm:mx-4 sm:max-h-[85dvh]',
           'animate-sheet-up sm:animate-scale-in',
           className,
         )}
       >
         {title ? (
-          <header className="flex items-center justify-between px-5 pt-4 pb-2">
+          <header className="flex shrink-0 items-center justify-between px-5 pt-4 pb-2">
             <h2 className="font-display text-lg font-semibold">{title}</h2>
             <button
               type="button"
               onClick={onClose}
-              aria-label="Закрыть"
+              aria-label={t('modal.close')}
               className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-hover hover:text-fg transition-colors"
             >
               <Icon name="close" size={20} />
             </button>
           </header>
         ) : null}
-        <div className="px-5 pb-6 pt-2">{children}</div>
+        <div className="overflow-y-auto overscroll-contain px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+          {children}
+        </div>
       </div>
     </div>
   );

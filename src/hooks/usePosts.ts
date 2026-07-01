@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { useData } from '@/hooks/useData';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/hooks/useI18n';
 import type { CreatePostInput, Post, PostView } from '@/types';
 
 interface PostActions {
@@ -22,6 +23,7 @@ export function usePosts(): PostActions {
   const data = useData();
   const { currentUser } = useAuth();
   const { notify } = useToast();
+  const { t } = useI18n();
 
   const signalAvailable = currentUser ? !data.signalUsedToday(currentUser.id) : false;
 
@@ -46,9 +48,9 @@ export function usePosts(): PostActions {
     (post: PostView) => {
       if (!currentUser) return;
       data.toggleRepost(post.id, currentUser.id);
-      notify(post.repostedByMe ? 'Репост убран.' : 'Подхвачено — перо полетело дальше.');
+      notify(post.repostedByMe ? t('toast.repost.removed') : t('toast.repost.done'));
     },
-    [currentUser, data, notify],
+    [currentUser, data, notify, t],
   );
 
   const raiseSignal = useCallback(
@@ -59,9 +61,9 @@ export function usePosts(): PostActions {
         notify(result.error, 'danger');
         return;
       }
-      notify('Сигнал дня поднят. Сегодня это твоё перо.', 'signal');
+      notify(t('toast.signal.raised'), 'signal');
     },
-    [currentUser, data, notify],
+    [currentUser, data, notify, t],
   );
 
   return useMemo(

@@ -1,4 +1,5 @@
 import { Icon } from '@/components/ui/Icon';
+import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
 
 interface SignalBadgeProps {
@@ -9,6 +10,7 @@ interface SignalBadgeProps {
 
 /** The premium marker for a Signal of the day — champagne feather + label. */
 export function SignalBadge({ variant = 'pin', className }: SignalBadgeProps) {
+  const { t } = useI18n();
   return (
     <span
       className={cn(
@@ -18,7 +20,7 @@ export function SignalBadge({ variant = 'pin', className }: SignalBadgeProps) {
       )}
     >
       <Icon name="feather" size={13} filled className="animate-signal-pulse" />
-      {variant === 'today' ? 'Сигнал дня · сегодня' : 'Сигнал дня'}
+      {variant === 'today' ? t('signal.badge.today') : t('signal.badge')}
     </span>
   );
 }

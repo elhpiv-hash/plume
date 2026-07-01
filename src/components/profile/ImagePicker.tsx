@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/hooks/useI18n';
 import { fileToResizedDataUrl } from '@/lib/imageResize';
 import { cn } from '@/lib/cn';
 
@@ -33,6 +34,7 @@ export function ImagePicker({
 }: ImagePickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { notify } = useToast();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
 
   const pick = () => inputRef.current?.click();
@@ -51,7 +53,7 @@ export function ImagePicker({
       });
       onChange(dataUrl);
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'Не удалось загрузить фото.', 'danger');
+      notify(err instanceof Error ? err.message : t('picker.error'), 'danger');
     } finally {
       setLoading(false);
     }
@@ -61,7 +63,7 @@ export function ImagePicker({
     <button
       type="button"
       onClick={pick}
-      aria-label={value ? `${label}: заменить` : `${label}: загрузить`}
+      aria-label={value ? t('picker.replaceAria', { label }) : t('picker.uploadAria', { label })}
       className={cn(
         'group relative grid place-items-center overflow-hidden border border-border bg-elevated',
         'transition-colors duration-200 hover:border-border-strong focus-visible:shadow-focus',
@@ -87,7 +89,7 @@ export function ImagePicker({
   const controls = (
     <div className="flex items-center gap-3">
       <Button type="button" variant="secondary" size="sm" onClick={pick} disabled={loading}>
-        {value ? 'Заменить' : 'Загрузить'}
+        {value ? t('picker.replace') : t('picker.upload')}
       </Button>
       {value ? (
         <button
@@ -95,7 +97,7 @@ export function ImagePicker({
           onClick={() => onChange(null)}
           className="text-sm text-muted transition-colors hover:text-fg"
         >
-          Удалить
+          {t('picker.remove')}
         </button>
       ) : null}
     </div>

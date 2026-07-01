@@ -4,8 +4,10 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/hooks/useNavigation';
+import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
 import type { Route } from '@/context/NavigationContext';
+import type { TranslationKey } from '@/i18n/types';
 
 interface SidebarProps {
   onCompose: () => void;
@@ -13,7 +15,7 @@ interface SidebarProps {
 
 interface NavLink {
   icon: IconName;
-  label: string;
+  labelKey: TranslationKey;
   route: Route;
   isActive: (route: Route, username: string) => boolean;
 }
@@ -21,19 +23,19 @@ interface NavLink {
 const LINKS: NavLink[] = [
   {
     icon: 'home',
-    label: 'Лента',
+    labelKey: 'route.feed',
     route: { name: 'feed' },
     isActive: (r) => r.name === 'feed',
   },
   {
     icon: 'user',
-    label: 'Профиль',
+    labelKey: 'route.profile',
     route: { name: 'profile', username: '' },
     isActive: (r, username) => r.name === 'profile' && r.username === username,
   },
   {
     icon: 'settings',
-    label: 'Настройки',
+    labelKey: 'route.settings',
     route: { name: 'settings' },
     isActive: (r) => r.name === 'settings',
   },
@@ -42,6 +44,7 @@ const LINKS: NavLink[] = [
 export function Sidebar({ onCompose }: SidebarProps) {
   const { currentUser, logout } = useAuth();
   const { route, navigate } = useNavigation();
+  const { t } = useI18n();
   if (!currentUser) return null;
 
   return (
@@ -50,7 +53,7 @@ export function Sidebar({ onCompose }: SidebarProps) {
         type="button"
         onClick={() => navigate({ name: 'feed' })}
         className="mb-4 self-center xl:self-start xl:pl-3"
-        aria-label="Plume — на главную"
+        aria-label={t('nav.logoHome')}
       >
         <Logo />
       </button>
@@ -64,7 +67,7 @@ export function Sidebar({ onCompose }: SidebarProps) {
               : link.route;
           return (
             <button
-              key={link.label}
+              key={link.labelKey}
               type="button"
               onClick={() => navigate(target)}
               className={cn(
@@ -75,17 +78,17 @@ export function Sidebar({ onCompose }: SidebarProps) {
             >
               <Icon name={link.icon} size={24} filled={active && link.icon === 'home'} />
               <span className={cn('hidden text-lg xl:inline font-display', active ? 'font-bold' : 'font-medium')}>
-                {link.label}
+                {t(link.labelKey)}
               </span>
             </button>
           );
         })}
 
-        <Button onClick={onCompose} className="mt-3 xl:w-full" aria-label="Создать пост">
+        <Button onClick={onCompose} className="mt-3 xl:w-full" aria-label={t('nav.composeAria')}>
           <span className="xl:hidden">
             <Icon name="plus" size={20} />
           </span>
-          <span className="hidden xl:inline">Новое перо</span>
+          <span className="hidden xl:inline">{t('nav.compose')}</span>
         </Button>
       </nav>
 
@@ -102,7 +105,7 @@ export function Sidebar({ onCompose }: SidebarProps) {
         <span
           role="button"
           tabIndex={0}
-          aria-label="Выйти"
+          aria-label={t('nav.logout')}
           onClick={(e) => {
             e.stopPropagation();
             logout();

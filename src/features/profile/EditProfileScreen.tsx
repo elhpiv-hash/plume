@@ -4,11 +4,14 @@ import { Input } from '@/components/ui/Input';
 import { Toggle } from '@/components/ui/Toggle';
 import { Icon } from '@/components/ui/Icon';
 import { ImagePicker } from '@/components/profile/ImagePicker';
+import { InstitutionPicker } from '@/components/profile/InstitutionPicker';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { useNavigation } from '@/hooks/useNavigation';
 import { useToast } from '@/hooks/useToast';
+import { useI18n } from '@/hooks/useI18n';
 import { normalizeUrl, validateName, validateUrl } from '@/lib/validators';
+import { containsProfanity } from '@/lib/profanity';
 import { cn } from '@/lib/cn';
 import type { ProfileLink, ProfilePatch } from '@/types';
 
@@ -18,19 +21,21 @@ const LINKS_MAX = 3;
 /**
  * Full profile editor (Profile 2.0). Local form state is collected from the
  * signed-in user and committed in a single `updateProfile` on save. Reachable
- * only from one's own profile via the "Редактировать" button.
+ * only from one's own profile via the edit button.
  */
 export function EditProfileScreen() {
   const { currentUser } = useAuth();
   const data = useData();
   const { back } = useNavigation();
   const { notify } = useToast();
+  const { t } = useI18n();
 
   const [name, setName] = useState(currentUser?.name ?? '');
   const [bio, setBio] = useState(currentUser?.bio ?? '');
   const [location, setLocation] = useState(currentUser?.location ?? '');
   const [work, setWork] = useState(currentUser?.work ?? '');
   const [education, setEducation] = useState(currentUser?.education ?? '');
+  const [school, setSchool] = useState(currentUser?.school ?? '');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(currentUser?.avatarUrl ?? null);
   const [coverUrl, setCoverUrl] = useState<string | null>(currentUser?.coverUrl ?? null);
   const [links, setLinks] = useState<ProfileLink[]>(currentUser?.links ?? []);
@@ -38,6 +43,7 @@ export function EditProfileScreen() {
   const [showYear, setShowYear] = useState(currentUser?.birthday?.showYear ?? true);
 
   const [nameError, setNameError] = useState<string | null>(null);
+  const [schoolError, setSchoolError] = useState<string | null>(null);
   const [linkErrors, setLinkErrors] = useState<(string | null)[]>([]);
 
   // Route guard — only an authenticated user can reach this screen.
@@ -51,13 +57,17 @@ export function EditProfileScreen() {
   const removeLink = (index: number) => setLinks((prev) => prev.filter((_, i) => i !== index));
 
   const save = () => {
-    const nextNameError = validateName(name);
-    const nextLinkErrors = links.map((l) => (l.url.trim() ? validateUrl(l.url) : null));
-    setNameError(nextNameError);
-    setLinkErrors(nextLinkErrors);
+    // Validation + profanity gate produce i18n keys; resolve them for display.
+    const nameKey = validateName(name) ?? (containsProfanity(name) ? 'profanity.blocked' : null);
+    const schoolKey = containsProfanity(school) ? 'profanity.blocked' : null;
+    const linkKeys = links.map((l) => (l.url.trim() ? validateUrl(l.url) : null));
 
-    if (nextNameError || bioOver || nextLinkErrors.some((e) => e !== null)) {
-      notify('Проверь подсвеченные поля.', 'danger');
+    setNameError(nameKey ? t(nameKey) : null);
+    setSchoolError(schoolKey ? t(schoolKey) : null);
+    setLinkErrors(linkKeys.map((k) => (k ? t(k) : null)));
+
+    if (nameKey || schoolKey || bioOver || linkKeys.some((k) => k !== null)) {
+      notify(t('edit.checkFields'), 'danger');
       return;
     }
 
@@ -73,6 +83,7 @@ export function EditProfileScreen() {
       location: location.trim(),
       work: work.trim(),
       education: education.trim(),
+      school: school.trim(),
       links: cleanedLinks,
       birthday: birthdayDate ? { date: birthdayDate, showYear } : null,
       avatarUrl,
@@ -80,7 +91,7 @@ export function EditProfileScreen() {
     };
 
     data.updateProfile(currentUser.id, patch);
-    notify('Профиль обновлён.');
+    notify(t('edit.saved'));
     back();
   };
 
@@ -89,16 +100,16 @@ export function EditProfileScreen() {
       {/* Sticky action bar under the app header. */}
       <div className="sticky top-14 z-20 flex items-center justify-between border-b border-border bg-bg/80 px-4 py-2.5 backdrop-blur-lg">
         <Button variant="ghost" size="sm" onClick={back}>
-          Отмена
+          {t('edit.cancel')}
         </Button>
         <Button size="sm" onClick={save}>
-          Сохранить
+          {t('edit.save')}
         </Button>
       </div>
 
       <div className="flex flex-col gap-6 px-4 py-5">
         <ImagePicker
-          label="Аватар"
+          label={t('edit.avatar')}
           value={avatarUrl}
           onChange={setAvatarUrl}
           shape="square"
@@ -107,7 +118,7 @@ export function EditProfileScreen() {
           placeholderIcon="user"
         />
         <ImagePicker
-          label="Обложка"
+          label={t('edit.cover')}
           value={coverUrl}
           onChange={setCoverUrl}
           shape="wide"
@@ -117,26 +128,26 @@ export function EditProfileScreen() {
         />
 
         <Input
-          label="Имя"
+          label={t('field.name')}
           value={name}
           error={nameError}
           onChange={(e) => {
             setName(e.target.value);
             setNameError(null);
           }}
-          placeholder="Как тебя звать"
+          placeholder={t('edit.name.placeholder')}
         />
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="edit-bio" className="text-sm font-medium text-muted">
-            О себе
+            {t('edit.bio')}
           </label>
           <textarea
             id="edit-bio"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={3}
-            placeholder="Кто ты, чем дышишь?"
+            placeholder={t('edit.bio.placeholder')}
             className={cn(
               'w-full resize-none rounded-md border bg-elevated p-3 text-base text-fg',
               'outline-none placeholder:text-faint focus:border-border-strong',
@@ -149,17 +160,17 @@ export function EditProfileScreen() {
         </div>
 
         <Input
-          label="Место"
+          label={t('edit.location')}
           leading={<Icon name="pin" size={16} />}
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          placeholder="Где ты на карте"
+          placeholder={t('edit.location.placeholder')}
         />
 
         {/* Links — dynamic list, 0..3 */}
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted">Ссылки</span>
+            <span className="text-sm font-medium text-muted">{t('edit.links')}</span>
             <span className="text-xs text-faint tabular-nums">
               {links.length}/{LINKS_MAX}
             </span>
@@ -168,13 +179,13 @@ export function EditProfileScreen() {
             <div key={i} className="flex items-start gap-2 rounded-md border border-border p-3">
               <div className="flex flex-1 flex-col gap-2">
                 <Input
-                  label="Название"
+                  label={t('edit.link.label')}
                   value={link.label}
                   onChange={(e) => setLinkAt(i, 'label', e.target.value)}
-                  placeholder="Например, Портфолио"
+                  placeholder={t('edit.link.labelPlaceholder')}
                 />
                 <Input
-                  label="Ссылка"
+                  label={t('edit.link.url')}
                   leading={<Icon name="link" size={16} />}
                   value={link.url}
                   error={linkErrors[i]}
@@ -182,13 +193,13 @@ export function EditProfileScreen() {
                     setLinkAt(i, 'url', e.target.value);
                     setLinkErrors((prev) => prev.map((err, idx) => (idx === i ? null : err)));
                   }}
-                  placeholder="plume.app"
+                  placeholder={t('edit.link.urlPlaceholder')}
                 />
               </div>
               <button
                 type="button"
                 onClick={() => removeLink(i)}
-                aria-label="Удалить ссылку"
+                aria-label={t('edit.link.remove')}
                 className="mt-7 grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-surface-hover hover:text-fg"
               >
                 <Icon name="close" size={18} />
@@ -197,7 +208,7 @@ export function EditProfileScreen() {
           ))}
           {links.length < LINKS_MAX ? (
             <Button type="button" variant="secondary" size="sm" onClick={addLink} className="self-start">
-              <Icon name="plus" size={16} /> Добавить ссылку
+              <Icon name="plus" size={16} /> {t('edit.link.add')}
             </Button>
           ) : null}
         </div>
@@ -205,7 +216,7 @@ export function EditProfileScreen() {
         {/* Birthday */}
         <div className="flex flex-col gap-2">
           <label htmlFor="edit-bday" className="text-sm font-medium text-muted">
-            Дата рождения
+            {t('edit.birthday')}
           </label>
           <input
             id="edit-bday"
@@ -219,40 +230,55 @@ export function EditProfileScreen() {
           />
           {birthdayDate ? (
             <div className="flex items-center justify-between pt-0.5">
-              <span className="text-sm text-muted">Показывать год</span>
-              <Toggle checked={showYear} onChange={setShowYear} label="Показывать год рождения" />
+              <span className="text-sm text-muted">{t('edit.showYear')}</span>
+              <Toggle checked={showYear} onChange={setShowYear} label={t('edit.showYear.aria')} />
             </div>
           ) : null}
         </div>
 
         <Input
-          label="Работа"
+          label={t('edit.work')}
           leading={<Icon name="briefcase" size={16} />}
           value={work}
           onChange={(e) => setWork(e.target.value)}
-          placeholder="Где и кем"
+          placeholder={t('edit.work.placeholder')}
         />
-        <Input
-          label="Университет"
+
+        {/* University — directory-backed: a value is only confirmed by picking. */}
+        <InstitutionPicker
+          label={t('edit.education')}
           leading={<Icon name="cap" size={16} />}
           value={education}
-          onChange={(e) => setEducation(e.target.value)}
-          placeholder="Где учился(ась)"
+          onChange={setEducation}
+          placeholder={t('edit.education.placeholder')}
+        />
+
+        {/* School — free text (no global directory), profanity-checked on save. */}
+        <Input
+          label={t('edit.school')}
+          leading={<Icon name="cap" size={16} />}
+          value={school}
+          error={schoolError}
+          onChange={(e) => {
+            setSchool(e.target.value);
+            setSchoolError(null);
+          }}
+          placeholder={t('edit.school.placeholder')}
         />
 
         {/* Anthem — feature stub, disabled, never saved. */}
-        <div className="flex items-center justify-between rounded-md border border-border bg-surface px-4 py-3">
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-full border border-border text-faint">
+        <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-surface px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border text-faint">
               <Icon name="sparkle" size={18} />
             </span>
-            <div>
-              <p className="font-display text-sm font-semibold text-muted">Музыка профиля</p>
-              <p className="text-xs text-faint">Привяжем трек к профилю позже.</p>
+            <div className="min-w-0">
+              <p className="font-display text-sm font-semibold text-muted">{t('edit.anthem.title')}</p>
+              <p className="truncate text-xs text-faint">{t('edit.anthem.desc')}</p>
             </div>
           </div>
-          <Button type="button" variant="secondary" size="sm" disabled>
-            В разработке
+          <Button type="button" variant="secondary" size="sm" disabled className="shrink-0">
+            {t('edit.anthem.cta')}
           </Button>
         </div>
       </div>

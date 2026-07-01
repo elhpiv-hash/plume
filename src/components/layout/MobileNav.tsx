@@ -1,8 +1,10 @@
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/hooks/useNavigation';
+import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
 import type { Route } from '@/context/NavigationContext';
+import type { TranslationKey } from '@/i18n/types';
 
 interface MobileNavProps {
   onCompose: () => void;
@@ -10,7 +12,7 @@ interface MobileNavProps {
 
 interface Item {
   icon: IconName;
-  label: string;
+  labelKey: TranslationKey;
   route: Route;
   active: (r: Route, username: string) => boolean;
 }
@@ -18,29 +20,30 @@ interface Item {
 export function MobileNav({ onCompose }: MobileNavProps) {
   const { currentUser } = useAuth();
   const { route, navigate } = useNavigation();
+  const { t } = useI18n();
   if (!currentUser) return null;
 
   const left: Item[] = [
-    { icon: 'home', label: 'Лента', route: { name: 'feed' }, active: (r) => r.name === 'feed' },
+    { icon: 'home', labelKey: 'route.feed', route: { name: 'feed' }, active: (r) => r.name === 'feed' },
   ];
   const right: Item[] = [
     {
       icon: 'user',
-      label: 'Профиль',
+      labelKey: 'route.profile',
       route: { name: 'profile', username: currentUser.username },
       active: (r, u) => r.name === 'profile' && r.username === u,
     },
-    { icon: 'settings', label: 'Настройки', route: { name: 'settings' }, active: (r) => r.name === 'settings' },
+    { icon: 'settings', labelKey: 'route.settings', route: { name: 'settings' }, active: (r) => r.name === 'settings' },
   ];
 
   const renderItem = (item: Item) => {
     const active = item.active(route, currentUser.username);
     return (
       <button
-        key={item.label}
+        key={item.labelKey}
         type="button"
         onClick={() => navigate(item.route)}
-        aria-label={item.label}
+        aria-label={t(item.labelKey)}
         className={cn(
           'flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors',
           active ? 'text-fg' : 'text-muted',
@@ -58,7 +61,7 @@ export function MobileNav({ onCompose }: MobileNavProps) {
         <button
           type="button"
           onClick={onCompose}
-          aria-label="Создать пост"
+          aria-label={t('nav.composeAria')}
           className="-mt-6 grid h-14 w-14 place-items-center rounded-full bg-invert text-invert-fg shadow-lift transition-transform active:scale-95"
         >
           <Icon name="plus" size={26} />

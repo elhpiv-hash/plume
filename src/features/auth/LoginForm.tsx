@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
+import { useI18n } from '@/hooks/useI18n';
 import { normalizeUsername } from '@/lib/validators';
 
 interface LoginFormProps {
@@ -10,6 +11,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onSwitch }: LoginFormProps) {
   const { login } = useAuth();
+  const { t } = useI18n();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
       <Input
-        label="@юзернейм"
+        label={t('field.username')}
         leading="@"
         autoComplete="username"
         value={username}
@@ -31,10 +33,10 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
           setUsername(e.target.value);
           setError(null);
         }}
-        placeholder="ты"
+        placeholder={t('field.username.placeholder')}
       />
       <Input
-        label="Пароль"
+        label={t('field.password')}
         type="password"
         autoComplete="current-password"
         value={password}
@@ -46,12 +48,12 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
         error={error}
       />
       <Button type="submit" size="lg" fullWidth className="mt-1">
-        Войти
+        {t('login.submit')}
       </Button>
       <p className="text-center text-sm text-muted">
-        Ещё без аккаунта?{' '}
+        {t('login.switchPrompt')}{' '}
         <button type="button" onClick={onSwitch} className="font-semibold text-fg hover:underline">
-          Создать
+          {t('login.switchAction')}
         </button>
       </p>
     </form>
