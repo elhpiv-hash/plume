@@ -15,11 +15,18 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
     const result = login(normalizeUsername(username), password);
-    if (!result.ok) setError(result.error);
+    // On success the auth gate unmounts this form; only reset on failure.
+    if (!result.ok) {
+      setError(result.error);
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -47,7 +54,7 @@ export function LoginForm({ onSwitch }: LoginFormProps) {
         placeholder="••••••"
         error={error}
       />
-      <Button type="submit" size="lg" fullWidth className="mt-1">
+      <Button type="submit" size="lg" fullWidth className="mt-1" disabled={submitting}>
         {t('login.submit')}
       </Button>
       <p className="text-center text-sm text-muted">

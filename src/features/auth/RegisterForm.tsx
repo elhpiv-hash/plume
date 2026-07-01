@@ -28,9 +28,11 @@ export function RegisterForm({ onSwitch }: RegisterFormProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Errors>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     // Basic validity first, then the profanity gate on the human-visible fields.
     const nameKey = validateName(name) ?? (containsProfanity(name) ? 'profanity.blocked' : null);
     const usernameKey =
@@ -45,13 +47,18 @@ export function RegisterForm({ onSwitch }: RegisterFormProps) {
     setErrors(next);
     if (next.name || next.username || next.password) return;
 
+    setSubmitting(true);
     const result = register({
       name,
       username: normalizeUsername(username),
       password,
     });
+    // On success the auth gate unmounts this form; only reset on failure.
     // The only failure left is a taken handle — surface it on the field.
-    if (!result.ok) setErrors({ username: result.error });
+    if (!result.ok) {
+      setErrors({ username: result.error });
+      setSubmitting(false);
+    }
   };
 
   const clear = (field: keyof Errors) =>
@@ -95,7 +102,7 @@ export function RegisterForm({ onSwitch }: RegisterFormProps) {
         }}
         placeholder={t('field.password.placeholder')}
       />
-      <Button type="submit" size="lg" fullWidth className="mt-1">
+      <Button type="submit" size="lg" fullWidth className="mt-1" disabled={submitting}>
         {t('register.submit')}
       </Button>
       <p className="text-center text-sm text-muted">

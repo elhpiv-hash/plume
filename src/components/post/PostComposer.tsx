@@ -116,6 +116,7 @@ export function PostComposer({
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKeyDown}
           rows={1}
+          aria-label={placeholder ?? defaultPlaceholder}
           placeholder={placeholder ?? defaultPlaceholder}
           className={cn(
             'w-full resize-none bg-transparent outline-none placeholder:text-faint',

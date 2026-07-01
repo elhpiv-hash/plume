@@ -55,7 +55,11 @@ export function EditProfileScreen() {
   const setLinkAt = (index: number, field: keyof ProfileLink, value: string) =>
     setLinks((prev) => prev.map((l, i) => (i === index ? { ...l, [field]: value } : l)));
   const addLink = () => setLinks((prev) => [...prev, { label: '', url: '' }]);
-  const removeLink = (index: number) => setLinks((prev) => prev.filter((_, i) => i !== index));
+  const removeLink = (index: number) => {
+    setLinks((prev) => prev.filter((_, i) => i !== index));
+    // Keep the parallel error array aligned with the links it describes.
+    setLinkErrors((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const save = () => {
     // Validation + profanity gate produce i18n keys; resolve them for display.
