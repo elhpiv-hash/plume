@@ -1,45 +1,17 @@
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
-import { Icon, type IconName } from '@/components/ui/Icon';
+import { Icon } from '@/components/ui/Icon';
 import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/hooks/useNavigation';
 import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
+import { NAV_ITEMS } from '@/config/navigation';
 import type { Route } from '@/context/NavigationContext';
-import type { TranslationKey } from '@/i18n/types';
 
 interface SidebarProps {
   onCompose: () => void;
 }
-
-interface NavLink {
-  icon: IconName;
-  labelKey: TranslationKey;
-  route: Route;
-  isActive: (route: Route, username: string) => boolean;
-}
-
-const LINKS: NavLink[] = [
-  {
-    icon: 'home',
-    labelKey: 'route.feed',
-    route: { name: 'feed' },
-    isActive: (r) => r.name === 'feed',
-  },
-  {
-    icon: 'user',
-    labelKey: 'route.profile',
-    route: { name: 'profile', username: '' },
-    isActive: (r, username) => r.name === 'profile' && r.username === username,
-  },
-  {
-    icon: 'settings',
-    labelKey: 'route.settings',
-    route: { name: 'settings' },
-    isActive: (r) => r.name === 'settings',
-  },
-];
 
 export function Sidebar({ onCompose }: SidebarProps) {
   const { currentUser, logout } = useAuth();
@@ -58,38 +30,49 @@ export function Sidebar({ onCompose }: SidebarProps) {
         <Logo />
       </button>
 
+      {/* Desktop shows every enabled entry (primary + secondary). Both bars are
+          driven by the same NAV_ITEMS config. */}
       <nav className="flex flex-1 flex-col gap-1">
-        {LINKS.map((link) => {
-          const active = link.isActive(route, currentUser.username);
+        {NAV_ITEMS.filter((item) => item.enabled).map((item) => {
+          if (item.kind === 'action') {
+            return (
+              <Button
+                key={item.id}
+                onClick={onCompose}
+                className="my-1 xl:w-full"
+                aria-label={t('nav.composeAria')}
+              >
+                <span className="xl:hidden">
+                  <Icon name={item.icon} size={20} />
+                </span>
+                <span className="hidden xl:inline">{t(item.i18nKey)}</span>
+              </Button>
+            );
+          }
+          const active = item.isActive(route, currentUser.username);
           const target: Route =
-            link.route.name === 'profile'
+            item.route.name === 'profile'
               ? { name: 'profile', username: currentUser.username }
-              : link.route;
+              : item.route;
           return (
             <button
-              key={link.labelKey}
+              key={item.id}
               type="button"
               onClick={() => navigate(target)}
+              aria-current={active ? 'page' : undefined}
               className={cn(
                 'group flex items-center gap-4 rounded-full px-3 py-2.5 transition-colors duration-200',
                 'justify-center xl:justify-start hover:bg-surface-hover',
                 active ? 'text-fg' : 'text-muted hover:text-fg',
               )}
             >
-              <Icon name={link.icon} size={24} filled={active && link.icon === 'home'} />
+              <Icon name={item.icon} size={24} filled={active && item.icon === 'home'} />
               <span className={cn('hidden text-lg xl:inline font-display', active ? 'font-bold' : 'font-medium')}>
-                {t(link.labelKey)}
+                {t(item.i18nKey)}
               </span>
             </button>
           );
         })}
-
-        <Button onClick={onCompose} className="mt-3 xl:w-full" aria-label={t('nav.composeAria')}>
-          <span className="xl:hidden">
-            <Icon name="plus" size={20} />
-          </span>
-          <span className="hidden xl:inline">{t('nav.compose')}</span>
-        </Button>
       </nav>
 
       <button

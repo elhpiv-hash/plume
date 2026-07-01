@@ -12,6 +12,8 @@ import type { TranslationKey } from '@/i18n/types';
 
 const ROUTE_TITLE: Record<string, TranslationKey> = {
   feed: 'route.feed',
+  search: 'route.search',
+  mind: 'route.mind',
   profile: 'route.profile',
   settings: 'route.settings',
   'edit-profile': 'route.editProfile',
@@ -38,7 +40,7 @@ function RightRail() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { route, back, canGoBack } = useNavigation();
+  const { route, navigate, back, canGoBack } = useNavigation();
   const { t } = useI18n();
   const [composeOpen, setComposeOpen] = useState(false);
   const titleKey = ROUTE_TITLE[route.name];
@@ -62,11 +64,24 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
           ) : null}
           <h1 className="font-display text-lg font-bold tracking-tight">{title}</h1>
-          {route.name === 'feed' ? (
-            <span className="ml-auto animate-float text-signal" aria-hidden>
-              <Icon name="feather" size={22} />
-            </span>
-          ) : null}
+          <div className="ml-auto flex items-center gap-1">
+            {route.name === 'feed' ? (
+              <span className="animate-float text-signal" aria-hidden>
+                <Icon name="feather" size={22} />
+              </span>
+            ) : null}
+            {/* Settings lives in the desktop sidebar; on mobile it's reached here,
+                keeping the bottom bar to the fixed 5-slot skeleton. */}
+            <button
+              type="button"
+              onClick={() => navigate({ name: 'settings' })}
+              aria-label={t('route.settings')}
+              aria-current={route.name === 'settings' ? 'page' : undefined}
+              className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-hover hover:text-fg lg:hidden"
+            >
+              <Icon name="settings" size={20} />
+            </button>
+          </div>
         </header>
 
         <div className="pb-24 lg:pb-10">{children}</div>

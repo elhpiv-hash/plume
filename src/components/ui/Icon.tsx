@@ -27,7 +27,9 @@ export type IconName =
   | 'cap'
   | 'cake'
   | 'camera'
-  | 'image';
+  | 'image'
+  | 'search'
+  | 'mind';
 
 interface IconProps {
   name: IconName;
@@ -224,6 +226,29 @@ const PATHS: Record<IconName, (filled: boolean) => ReactNode> = {
       <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="none" stroke="currentColor" strokeWidth={1.7} />
       <circle cx="8.5" cy="9.5" r="1.5" fill="none" stroke="currentColor" strokeWidth={1.7} />
       <path d="M4 17l4.5-4.5 3 3L15 11l5 5" fill="none" stroke="currentColor" strokeWidth={1.7} />
+    </>
+  ),
+  search: () => (
+    <>
+      <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" strokeWidth={1.7} />
+      <path d="M20.5 20.5 16 16" fill="none" stroke="currentColor" strokeWidth={1.7} />
+    </>
+  ),
+  // "Mind": a small constellation of thought — nodes linked into a graph.
+  mind: (filled) => (
+    <>
+      <path
+        d="M7 6.5 12 12M12 12 17.5 7.5M12 12 8 17.5M12 12 17 16.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.4}
+        opacity={filled ? 0.9 : 0.6}
+      />
+      <circle cx="7" cy="6.5" r="1.7" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6} />
+      <circle cx="17.5" cy="7.5" r="1.5" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6} />
+      <circle cx="12" cy="12" r="2" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.7} />
+      <circle cx="8" cy="17.5" r="1.5" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6} />
+      <circle cx="17" cy="16.5" r="1.7" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6} />
     </>
   ),
 };

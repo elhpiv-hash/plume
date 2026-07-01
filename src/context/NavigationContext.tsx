@@ -7,6 +7,8 @@ import { createContext, useCallback, useMemo, useState, type ReactNode } from 'r
  */
 export type Route =
   | { name: 'feed' }
+  | { name: 'search' }
+  | { name: 'mind' }
   | { name: 'profile'; username: string }
   | { name: 'settings' }
   | { name: 'edit-profile' };

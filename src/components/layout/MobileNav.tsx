@@ -1,20 +1,12 @@
-import { Icon, type IconName } from '@/components/ui/Icon';
+import { Icon } from '@/components/ui/Icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/hooks/useNavigation';
 import { useI18n } from '@/hooks/useI18n';
 import { cn } from '@/lib/cn';
-import type { Route } from '@/context/NavigationContext';
-import type { TranslationKey } from '@/i18n/types';
+import { NAV_ITEMS, type NavItem } from '@/config/navigation';
 
 interface MobileNavProps {
   onCompose: () => void;
-}
-
-interface Item {
-  icon: IconName;
-  labelKey: TranslationKey;
-  route: Route;
-  active: (r: Route, username: string) => boolean;
 }
 
 export function MobileNav({ onCompose }: MobileNavProps) {
@@ -23,29 +15,29 @@ export function MobileNav({ onCompose }: MobileNavProps) {
   const { t } = useI18n();
   if (!currentUser) return null;
 
-  const left: Item[] = [
-    { icon: 'home', labelKey: 'route.feed', route: { name: 'feed' }, active: (r) => r.name === 'feed' },
-  ];
-  const right: Item[] = [
-    {
-      icon: 'user',
-      labelKey: 'route.profile',
-      route: { name: 'profile', username: currentUser.username },
-      active: (r, u) => r.name === 'profile' && r.username === u,
-    },
-    { icon: 'settings', labelKey: 'route.settings', route: { name: 'settings' }, active: (r) => r.name === 'settings' },
-  ];
+  // Same NAV_ITEMS as the desktop Sidebar — mobile shows the primary set,
+  // split around the central compose action into left/right groups.
+  const primary = NAV_ITEMS.filter((item) => item.enabled && item.placement === 'primary');
+  const actionIndex = primary.findIndex((item) => item.kind === 'action');
+  const left = actionIndex >= 0 ? primary.slice(0, actionIndex) : primary;
+  const right = actionIndex >= 0 ? primary.slice(actionIndex + 1) : [];
 
-  const renderItem = (item: Item) => {
-    const active = item.active(route, currentUser.username);
+  const renderItem = (item: NavItem) => {
+    if (item.kind !== 'route') return null;
+    const active = item.isActive(route, currentUser.username);
+    const target =
+      item.route.name === 'profile'
+        ? { name: 'profile' as const, username: currentUser.username }
+        : item.route;
     return (
       <button
-        key={item.labelKey}
+        key={item.id}
         type="button"
-        onClick={() => navigate(item.route)}
-        aria-label={t(item.labelKey)}
+        onClick={() => navigate(target)}
+        aria-label={t(item.i18nKey)}
+        aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors',
+          'flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors',
           active ? 'text-fg' : 'text-muted',
         )}
       >

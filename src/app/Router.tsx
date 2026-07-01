@@ -2,6 +2,7 @@ import { Feed } from '@/components/feed/Feed';
 import { ProfileScreen } from '@/components/profile/ProfileScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
+import { ComingSoon } from '@/components/common/ComingSoon';
 import { useNavigation } from '@/hooks/useNavigation';
 
 /**
@@ -14,6 +15,10 @@ export function Router() {
   switch (route.name) {
     case 'feed':
       return <Feed />;
+    case 'search':
+      return <ComingSoon icon="search" titleKey="route.search" descKey="search.soon" />;
+    case 'mind':
+      return <ComingSoon icon="mind" titleKey="route.mind" descKey="mind.soon" />;
     case 'profile':
       return <ProfileScreen username={route.username} />;
     case 'settings':

@@ -72,12 +72,12 @@ export const ru = {
   'profanity.blocked': 'Так не пойдёт — уберём крепкое словцо и попробуем ещё раз.',
 
   // ── Feed ──
-  'feed.end': 'Ты долетел до конца ленты.',
+  'feed.end': 'Ты долетел до конца Потока.',
   'feed.empty.title': 'Тут пока тихо',
-  'feed.empty.desc': 'Воздух чист и ничей. Напиши первое перо — и лента оживёт.',
+  'feed.empty.desc': 'Воздух чист и ничей. Напиши первое перо — и Поток оживёт.',
 
   // ── Composer ──
-  'composer.placeholder': 'Что в воздухе?',
+  'composer.placeholder': 'Что за мысль?',
   'composer.replyPlaceholder': 'Ответь пером…',
   'composer.hint': '⌘↵ чтобы опубликовать',
   'composer.replyContext': 'Ответ виден в профиле',
@@ -86,13 +86,13 @@ export const ru = {
 
   // ── Post actions / card ──
   'action.reply': 'Ответить',
-  'action.repost': 'Репост',
-  'action.like': 'Нравится',
+  'action.repost': 'Подхватить',
+  'action.like': 'Отклик',
   'signal.raise': 'Сделать сигналом дня',
   'signal.chosen': 'Сигнал дня уже выбран',
   'post.authorProfile': 'Профиль {name}',
   'post.reply.title': 'Ответ',
-  'toast.repost.removed': 'Репост убран.',
+  'toast.repost.removed': 'Подхват убран.',
   'toast.repost.done': 'Подхвачено — перо полетело дальше.',
   'toast.signal.raised': 'Сигнал дня поднят. Сегодня это твоё перо.',
 
@@ -101,18 +101,20 @@ export const ru = {
   'signal.badge.today': 'Сигнал дня · сегодня',
 
   // ── Shell / nav ──
-  'route.feed': 'Лента',
+  'route.feed': 'Поток',
+  'route.search': 'Поиск',
+  'route.mind': 'Разум',
   'route.profile': 'Профиль',
   'route.settings': 'Настройки',
   'route.editProfile': 'Редактировать профиль',
   'nav.back': 'Назад',
   'nav.logoHome': 'Plume — на главную',
   'nav.compose': 'Новое перо',
-  'nav.composeAria': 'Создать пост',
+  'nav.composeAria': 'Создать перо',
   'nav.logout': 'Выйти',
   'compose.title': 'Новое перо',
   'rightRail.desc':
-    'Раз в сутки ты можешь поднять одно перо как Сигнал дня — оно засветится в ленте и закрепится в профиле.',
+    'Раз в сутки ты можешь поднять одно перо как Сигнал дня — оно засветится в Потоке и закрепится в профиле.',
   'rightRail.free': 'Сегодня сигнал ещё свободен.',
   'rightRail.used': 'На сегодня сигнал уже поднят.',
   'rightRail.tagline': 'Plume — лёгкая социальная сеть. Прототип: всё живёт в памяти сессии.',
@@ -137,7 +139,7 @@ export const ru = {
   'settings.privacy.title': 'Приватность',
   'settings.privacy.desc': 'Кто видит твои перья',
   'settings.notifications.title': 'Уведомления',
-  'settings.notifications.desc': 'Сигналы, ответы, репосты',
+  'settings.notifications.desc': 'Сигналы, ответы, подхваты',
   'settings.logout': 'Выйти из аккаунта',
   'settings.soon': '{what} — раздел в работе.',
 
@@ -175,21 +177,21 @@ export const ru = {
 
   // ── Profile header ──
   'profile.edit': 'Редактировать',
-  'profile.following': 'Вы подписаны',
-  'profile.follow': 'Подписаться',
+  'profile.following': 'Вы следуете',
+  'profile.follow': 'Следовать',
   'profile.addBio': 'Добавь пару слов о себе',
   'profile.joined': 'В Plume с {date}',
-  'profile.count.following': 'в подписках',
-  'profile.count.followers.one': 'подписчик',
-  'profile.count.followers.many': 'подписчиков',
+  'profile.count.following': 'в полёте',
+  'profile.count.followers.one': 'читатель',
+  'profile.count.followers.many': 'читателей',
   'profile.bio.title': 'О себе',
 
   // ── Profile screen ──
   'profile.notFound.title': 'Аккаунт не найден',
   'profile.notFound.desc': '@{username} пока не существует в Plume.',
-  'profile.notFound.cta': 'В ленту',
+  'profile.notFound.cta': 'В Поток',
   'profile.empty.own.title': 'Профиль ждёт первого пера',
-  'profile.empty.own.desc': 'Здесь будут жить твои посты. Начни прямо сейчас — это займёт секунду.',
+  'profile.empty.own.desc': 'Здесь будут жить твои перья. Начни прямо сейчас — это займёт секунду.',
   'profile.empty.other.title': 'Здесь пока пусто',
   'profile.empty.other.desc': '{name} ещё не написал(а) ни одного пера.',
   'profile.replies.empty.title': 'Ответов нет',
@@ -215,4 +217,11 @@ export const ru = {
   'external.body': 'Вы переходите на внешний сайт: {host}. Plume не отвечает за его содержимое.',
   'external.proceed': 'Перейти',
   'external.cancel': 'Отмена',
+
+  // ── Common ──
+  'common.soon': 'Скоро',
+
+  // ── Reserved nav slots (premium "coming soon") ──
+  'search.soon': 'Скоро здесь можно будет искать перья, людей и Сигналы — весь Поток под рукой.',
+  'mind.soon': 'Здесь оживёт твой Разум — карта мыслей и связей между перьями. Скоро.',
 } as const;

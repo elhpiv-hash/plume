@@ -68,12 +68,12 @@ export const en: Dict = {
   'profanity.blocked': 'Let’s keep it clean — drop the strong words and try again.',
 
   // ── Feed ──
-  'feed.end': 'You’ve reached the end of the feed.',
+  'feed.end': 'You’ve reached the end of the Stream.',
   'feed.empty.title': 'All quiet here',
-  'feed.empty.desc': 'The air is clear and open. Write your first feather — the feed will come alive.',
+  'feed.empty.desc': 'The air is clear and open. Write your first feather — the Stream will come alive.',
 
   // ── Composer ──
-  'composer.placeholder': 'What’s in the air?',
+  'composer.placeholder': 'What’s the thought?',
   'composer.replyPlaceholder': 'Reply with a feather…',
   'composer.hint': '⌘↵ to publish',
   'composer.replyContext': 'Reply shown on your profile',
@@ -82,14 +82,14 @@ export const en: Dict = {
 
   // ── Post actions / card ──
   'action.reply': 'Reply',
-  'action.repost': 'Repost',
-  'action.like': 'Like',
+  'action.repost': 'Uplift',
+  'action.like': 'Spark',
   'signal.raise': 'Make it the Signal of the day',
   'signal.chosen': 'Signal of the day already set',
   'post.authorProfile': '{name}’s profile',
   'post.reply.title': 'Reply',
-  'toast.repost.removed': 'Repost removed.',
-  'toast.repost.done': 'Picked up — the feather flies on.',
+  'toast.repost.removed': 'Uplift removed.',
+  'toast.repost.done': 'Uplifted — the feather flies on.',
   'toast.signal.raised': 'Signal of the day raised. Today it’s your feather.',
 
   // ── Signal badge ──
@@ -97,18 +97,20 @@ export const en: Dict = {
   'signal.badge.today': 'Signal of the day · today',
 
   // ── Shell / nav ──
-  'route.feed': 'Feed',
+  'route.feed': 'Stream',
+  'route.search': 'Search',
+  'route.mind': 'Mind',
   'route.profile': 'Profile',
   'route.settings': 'Settings',
   'route.editProfile': 'Edit profile',
   'nav.back': 'Back',
   'nav.logoHome': 'Plume — home',
   'nav.compose': 'New feather',
-  'nav.composeAria': 'Create a post',
+  'nav.composeAria': 'Create a feather',
   'nav.logout': 'Sign out',
   'compose.title': 'New feather',
   'rightRail.desc':
-    'Once a day you can raise one feather as the Signal of the day — it glows in the feed and pins to your profile.',
+    'Once a day you can raise one feather as the Signal of the day — it glows in the Stream and pins to your profile.',
   'rightRail.free': 'Today’s signal is still open.',
   'rightRail.used': 'Today’s signal is already raised.',
   'rightRail.tagline': 'Plume — a lighter social network. Prototype: everything lives in session memory.',
@@ -133,7 +135,7 @@ export const en: Dict = {
   'settings.privacy.title': 'Privacy',
   'settings.privacy.desc': 'Who sees your feathers',
   'settings.notifications.title': 'Notifications',
-  'settings.notifications.desc': 'Signals, replies, reposts',
+  'settings.notifications.desc': 'Signals, replies, uplifts',
   'settings.logout': 'Sign out',
   'settings.soon': '{what} — section in progress.',
 
@@ -183,9 +185,9 @@ export const en: Dict = {
   // ── Profile screen ──
   'profile.notFound.title': 'Account not found',
   'profile.notFound.desc': '@{username} doesn’t exist on Plume yet.',
-  'profile.notFound.cta': 'To the feed',
+  'profile.notFound.cta': 'To the Stream',
   'profile.empty.own.title': 'Your profile awaits its first feather',
-  'profile.empty.own.desc': 'Your posts will live here. Start now — it takes a second.',
+  'profile.empty.own.desc': 'Your feathers will live here. Start now — it takes a second.',
   'profile.empty.other.title': 'Nothing here yet',
   'profile.empty.other.desc': '{name} hasn’t written a single feather yet.',
   'profile.replies.empty.title': 'No replies',
@@ -211,4 +213,11 @@ export const en: Dict = {
   'external.body': 'You’re heading to an external site: {host}. Plume isn’t responsible for its content.',
   'external.proceed': 'Continue',
   'external.cancel': 'Cancel',
+
+  // ── Common ──
+  'common.soon': 'Soon',
+
+  // ── Reserved nav slots (premium "coming soon") ──
+  'search.soon': 'Soon you’ll search feathers, people and Signals — the whole Stream at your fingertips.',
+  'mind.soon': 'This is where your Mind comes alive — a map of thoughts and the links between feathers. Soon.',
 };
