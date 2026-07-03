@@ -9,6 +9,7 @@ export type Route =
   | { name: 'feed' }
   | { name: 'search' }
   | { name: 'mind' }
+  | { name: 'hashtag'; tag: string }
   | { name: 'profile'; username: string }
   | { name: 'settings' }
   | { name: 'edit-profile' };
@@ -25,6 +26,7 @@ export const NavigationContext = createContext<NavigationContextValue | null>(nu
 function sameRoute(a: Route, b: Route): boolean {
   if (a.name !== b.name) return false;
   if (a.name === 'profile' && b.name === 'profile') return a.username === b.username;
+  if (a.name === 'hashtag' && b.name === 'hashtag') return a.tag === b.tag;
   return true;
 }
 

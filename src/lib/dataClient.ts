@@ -21,6 +21,7 @@ import type {
   ProfilePatch,
   User,
 } from '@/types';
+import { extractHashtags } from '@/lib/richText';
 
 // ──────────────────────────────── State ────────────────────────────────
 
@@ -198,6 +199,32 @@ export function selectUserReplies(state: DataState, userId: ID): Post[] {
   return Object.values(state.posts)
     .filter((p) => p.authorId === userId && p.parentId !== null)
     .sort(byNewest);
+}
+
+/**
+ * Feathers that carry a given hashtag (case-insensitive), newest first. Entities
+ * are derived from `text` via the shared parser — the store is never touched.
+ * This is exactly the post ↔ tag ↔ post edge set the future Mind will walk.
+ */
+export function selectPostsByHashtag(state: DataState, tag: string): Post[] {
+  const needle = tag.trim().toLowerCase().replace(/^#/, '');
+  if (!needle) return [];
+  return Object.values(state.posts)
+    .filter((p) => extractHashtags(p.text).includes(needle))
+    .sort(byNewest);
+}
+
+/**
+ * Users whose handle starts with, or name contains, the query — for the
+ * composer's @mention autocomplete. Empty query returns a small starter slice.
+ */
+export function selectUsersMatching(state: DataState, query: string, limit = 6): User[] {
+  const q = query.trim().toLowerCase().replace(/^@/, '');
+  const users = Object.values(state.users);
+  if (!q) return users.slice(0, limit);
+  return users
+    .filter((u) => u.username.toLowerCase().startsWith(q) || u.name.toLowerCase().includes(q))
+    .slice(0, limit);
 }
 
 export function selectReplies(state: DataState, postId: ID): Post[] {

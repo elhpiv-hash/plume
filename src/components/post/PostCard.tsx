@@ -3,6 +3,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Modal } from '@/components/ui/Modal';
 import { PostActions } from '@/components/post/PostActions';
 import { PostComposer } from '@/components/post/PostComposer';
+import { RichText } from '@/components/post/RichText';
 import { SignalBadge } from '@/components/post/SignalBadge';
 import { SignalFeathers } from '@/components/post/SignalFeathers';
 import { useAuth } from '@/hooks/useAuth';
@@ -69,7 +70,7 @@ export function PostCard({ post, animate = true }: PostCardProps) {
           </div>
 
           <p className="mt-0.5 whitespace-pre-wrap break-words text-[0.95rem] leading-relaxed text-fg">
-            {post.text}
+            <RichText text={post.text} />
           </p>
 
           <PostActions

@@ -220,4 +220,9 @@ export const en: Dict = {
   // ── Reserved nav slots (premium "coming soon") ──
   'search.soon': 'Soon you’ll search feathers, people and Signals — the whole Stream at your fingertips.',
   'mind.soon': 'This is where your Mind comes alive — a map of thoughts and the links between feathers. Soon.',
+
+  // ── Hashtag screen ──
+  'hashtag.subtitle': 'Feathers with this tag',
+  'hashtag.empty.title': 'This tag awaits its first feather',
+  'hashtag.empty.desc': 'No feather carries #{tag} yet. Be the first.',
 };

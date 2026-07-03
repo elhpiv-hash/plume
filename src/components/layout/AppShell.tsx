@@ -44,7 +44,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   const [composeOpen, setComposeOpen] = useState(false);
   const titleKey = ROUTE_TITLE[route.name];
-  const title = titleKey ? t(titleKey) : 'Plume';
+  // The hashtag screen's title is the tag itself, not a static i18n string.
+  const title = route.name === 'hashtag' ? `#${route.tag}` : titleKey ? t(titleKey) : 'Plume';
 
   return (
     <div className="mx-auto flex w-full max-w-[1280px]">

@@ -14,11 +14,13 @@ import {
   selectFollowerCount,
   selectFollowingCount,
   selectIsFollowing,
+  selectPostsByHashtag,
   selectSignalOfDay,
   selectUser,
   selectUserByUsername,
   selectUserPosts,
   selectUserReplies,
+  selectUsersMatching,
   toPostView,
   type DataState,
 } from '@/lib/dataClient';
@@ -51,6 +53,10 @@ export interface DataContextValue {
   feed: (viewerId: ID | null) => PostView[];
   userPosts: (userId: ID, viewerId: ID | null) => PostView[];
   userReplies: (userId: ID, viewerId: ID | null) => PostView[];
+  /** Feathers carrying a hashtag — powers the tag screen. */
+  postsByHashtag: (tag: string, viewerId: ID | null) => PostView[];
+  /** User suggestions for the composer's @mention autocomplete. */
+  suggestUsers: (query: string, limit?: number) => User[];
   followerCount: (userId: ID) => number;
   followingCount: (userId: ID) => number;
   isFollowing: (followerId: ID, followingId: ID) => boolean;
@@ -102,6 +108,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         mapViews(selectUserPosts(stateRef.current, userId), viewerId),
       userReplies: (userId, viewerId) =>
         mapViews(selectUserReplies(stateRef.current, userId), viewerId),
+      postsByHashtag: (tag, viewerId) =>
+        mapViews(selectPostsByHashtag(stateRef.current, tag), viewerId),
+      suggestUsers: (query, limit) => selectUsersMatching(stateRef.current, query, limit),
 
       followerCount: (userId) => selectFollowerCount(stateRef.current, userId),
       followingCount: (userId) => selectFollowingCount(stateRef.current, userId),

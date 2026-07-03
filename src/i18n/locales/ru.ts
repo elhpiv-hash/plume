@@ -224,4 +224,9 @@ export const ru = {
   // ── Reserved nav slots (premium "coming soon") ──
   'search.soon': 'Скоро здесь можно будет искать перья, людей и Сигналы — весь Поток под рукой.',
   'mind.soon': 'Здесь оживёт твой Разум — карта мыслей и связей между перьями. Скоро.',
+
+  // ── Hashtag screen ──
+  'hashtag.subtitle': 'Перья с этим тегом',
+  'hashtag.empty.title': 'Тег ждёт первого пера',
+  'hashtag.empty.desc': 'Пока ни одно перо не носит #{tag}. Стань первым.',
 } as const;
