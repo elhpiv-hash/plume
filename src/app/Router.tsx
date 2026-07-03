@@ -3,6 +3,7 @@ import { ProfileScreen } from '@/components/profile/ProfileScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { HashtagScreen } from '@/features/hashtag/HashtagScreen';
+import { SearchScreen } from '@/features/search/SearchScreen';
 import { ComingSoon } from '@/components/common/ComingSoon';
 import { useNavigation } from '@/hooks/useNavigation';
 
@@ -17,7 +18,7 @@ export function Router() {
     case 'feed':
       return <Feed />;
     case 'search':
-      return <ComingSoon icon="search" titleKey="route.search" descKey="search.soon" />;
+      return <SearchScreen />;
     case 'mind':
       return <ComingSoon icon="mind" titleKey="route.mind" descKey="mind.soon" />;
     case 'hashtag':

@@ -71,6 +71,11 @@ export const en: Dict = {
   'feed.end': 'You’ve reached the end of the Stream.',
   'feed.empty.title': 'All quiet here',
   'feed.empty.desc': 'The air is clear and open. Write your first feather — the Stream will come alive.',
+  'feed.tab.forYou': 'For you',
+  'feed.tab.following': 'Following',
+  'feed.following.empty.title': 'You’re not following anyone yet',
+  'feed.following.empty.desc': 'Find the people whose thoughts you want to catch.',
+  'feed.following.empty.cta': 'Find people',
 
   // ── Composer ──
   'composer.placeholder': 'What’s the thought?',
@@ -225,4 +230,15 @@ export const en: Dict = {
   'hashtag.subtitle': 'Feathers with this tag',
   'hashtag.empty.title': 'This tag awaits its first feather',
   'hashtag.empty.desc': 'No feather carries #{tag} yet. Be the first.',
+
+  // ── Search ──
+  'search.label': 'Search',
+  'search.placeholder': 'People, feathers, tags',
+  'search.prompt.title': 'What are you after?',
+  'search.prompt.desc': 'People, feathers, tags — start typing.',
+  'search.empty.title': 'Nothing found',
+  'search.empty.desc': 'Try another query.',
+  'search.section.people': 'People',
+  'search.section.posts': 'Feathers',
+  'search.section.tags': 'Tags',
 };

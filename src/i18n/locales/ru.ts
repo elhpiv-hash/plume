@@ -75,6 +75,11 @@ export const ru = {
   'feed.end': 'Ты долетел до конца Потока.',
   'feed.empty.title': 'Тут пока тихо',
   'feed.empty.desc': 'Воздух чист и ничей. Напиши первое перо — и Поток оживёт.',
+  'feed.tab.forYou': 'Для тебя',
+  'feed.tab.following': 'Подписки',
+  'feed.following.empty.title': 'Ты ещё ни за кем не следуешь',
+  'feed.following.empty.desc': 'Найди тех, чьи мысли хочется ловить.',
+  'feed.following.empty.cta': 'Найти людей',
 
   // ── Composer ──
   'composer.placeholder': 'Что за мысль?',
@@ -229,4 +234,15 @@ export const ru = {
   'hashtag.subtitle': 'Перья с этим тегом',
   'hashtag.empty.title': 'Тег ждёт первого пера',
   'hashtag.empty.desc': 'Пока ни одно перо не носит #{tag}. Стань первым.',
+
+  // ── Search ──
+  'search.label': 'Поиск',
+  'search.placeholder': 'Люди, перья, теги',
+  'search.prompt.title': 'Что ищем?',
+  'search.prompt.desc': 'Люди, перья, теги — начни печатать.',
+  'search.empty.title': 'Ничего не нашлось',
+  'search.empty.desc': 'Попробуй другой запрос.',
+  'search.section.people': 'Люди',
+  'search.section.posts': 'Перья',
+  'search.section.tags': 'Теги',
 } as const;

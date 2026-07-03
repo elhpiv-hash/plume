@@ -13,8 +13,11 @@ import {
   selectFeed,
   selectFollowerCount,
   selectFollowingCount,
+  selectFollowingFeed,
+  selectHashtagsMatching,
   selectIsFollowing,
   selectPostsByHashtag,
+  selectPostsMatching,
   selectSignalOfDay,
   selectUser,
   selectUserByUsername,
@@ -23,6 +26,7 @@ import {
   selectUsersMatching,
   toPostView,
   type DataState,
+  type HashtagHit,
 } from '@/lib/dataClient';
 import { calendarDay } from '@/lib/formatTime';
 import { createId } from '@/lib/id';
@@ -55,8 +59,14 @@ export interface DataContextValue {
   userReplies: (userId: ID, viewerId: ID | null) => PostView[];
   /** Feathers carrying a hashtag — powers the tag screen. */
   postsByHashtag: (tag: string, viewerId: ID | null) => PostView[];
+  /** The viewer's "Following" timeline (followed authors + self). */
+  followingFeed: (viewerId: ID | null) => PostView[];
   /** User suggestions for the composer's @mention autocomplete. */
   suggestUsers: (query: string, limit?: number) => User[];
+  /** Search: feathers whose text matches the query. */
+  postsMatching: (query: string, viewerId: ID | null, limit?: number) => PostView[];
+  /** Search: hashtags matching the query, ranked by frequency. */
+  hashtagsMatching: (query: string, limit?: number) => HashtagHit[];
   followerCount: (userId: ID) => number;
   followingCount: (userId: ID) => number;
   isFollowing: (followerId: ID, followingId: ID) => boolean;
@@ -110,7 +120,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
         mapViews(selectUserReplies(stateRef.current, userId), viewerId),
       postsByHashtag: (tag, viewerId) =>
         mapViews(selectPostsByHashtag(stateRef.current, tag), viewerId),
+      followingFeed: (viewerId) =>
+        viewerId ? mapViews(selectFollowingFeed(stateRef.current, viewerId), viewerId) : [],
       suggestUsers: (query, limit) => selectUsersMatching(stateRef.current, query, limit),
+      postsMatching: (query, viewerId, limit) =>
+        mapViews(selectPostsMatching(stateRef.current, query, limit), viewerId),
+      hashtagsMatching: (query, limit) => selectHashtagsMatching(stateRef.current, query, limit),
 
       followerCount: (userId) => selectFollowerCount(stateRef.current, userId),
       followingCount: (userId) => selectFollowingCount(stateRef.current, userId),

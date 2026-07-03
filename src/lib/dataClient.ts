@@ -189,6 +189,23 @@ export function selectFeed(state: DataState): Post[] {
     .sort(byNewest);
 }
 
+/**
+ * The "Following" timeline: top-level feathers from the accounts a viewer
+ * follows, plus their own, newest first. A pure view over `follows` + `posts`.
+ * The ranked, personalised "For you" feed will later stand alongside this in the
+ * Mind phase — for now "For you" stays the plain chronology of `selectFeed`.
+ */
+export function selectFollowingFeed(state: DataState, userId: ID): Post[] {
+  const authors = new Set(
+    state.follows.filter((f) => f.followerId === userId).map((f) => f.followingId),
+  );
+  authors.add(userId);
+  return state.postIds
+    .map((id) => state.posts[id])
+    .filter((p): p is Post => Boolean(p) && p!.parentId === null && authors.has(p!.authorId))
+    .sort(byNewest);
+}
+
 export function selectUserPosts(state: DataState, userId: ID): Post[] {
   return Object.values(state.posts)
     .filter((p) => p.authorId === userId && p.parentId === null)
@@ -224,6 +241,42 @@ export function selectUsersMatching(state: DataState, query: string, limit = 6):
   if (!q) return users.slice(0, limit);
   return users
     .filter((u) => u.username.toLowerCase().startsWith(q) || u.name.toLowerCase().includes(q))
+    .slice(0, limit);
+}
+
+/** Top-level feathers whose text contains the query (case-insensitive), newest first. */
+export function selectPostsMatching(state: DataState, query: string, limit = 20): Post[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  return state.postIds
+    .map((id) => state.posts[id])
+    .filter((p): p is Post => Boolean(p) && p!.parentId === null && p!.text.toLowerCase().includes(q))
+    .sort(byNewest)
+    .slice(0, limit);
+}
+
+/** A hashtag with how many feathers carry it. */
+export interface HashtagHit {
+  tag: string;
+  count: number;
+}
+
+/**
+ * Hashtags across all feathers matching the query (empty query → most popular),
+ * ranked by frequency. Reuses the shared entity extraction — more raw material
+ * for the future Mind's tag graph.
+ */
+export function selectHashtagsMatching(state: DataState, query: string, limit = 10): HashtagHit[] {
+  const q = query.trim().toLowerCase().replace(/^#/, '');
+  const counts = new Map<string, number>();
+  for (const post of Object.values(state.posts)) {
+    for (const tag of extractHashtags(post.text)) {
+      if (!q || tag.includes(q)) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
     .slice(0, limit);
 }
 
