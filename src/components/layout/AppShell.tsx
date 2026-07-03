@@ -14,6 +14,7 @@ const ROUTE_TITLE: Record<string, TranslationKey> = {
   feed: 'route.feed',
   search: 'route.search',
   mind: 'route.mind',
+  post: 'route.post',
   profile: 'route.profile',
   settings: 'route.settings',
   'edit-profile': 'route.editProfile',

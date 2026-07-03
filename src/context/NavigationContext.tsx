@@ -10,6 +10,7 @@ export type Route =
   | { name: 'search' }
   | { name: 'mind' }
   | { name: 'hashtag'; tag: string }
+  | { name: 'post'; postId: string }
   | { name: 'profile'; username: string }
   | { name: 'settings' }
   | { name: 'edit-profile' };
@@ -27,6 +28,7 @@ function sameRoute(a: Route, b: Route): boolean {
   if (a.name !== b.name) return false;
   if (a.name === 'profile' && b.name === 'profile') return a.username === b.username;
   if (a.name === 'hashtag' && b.name === 'hashtag') return a.tag === b.tag;
+  if (a.name === 'post' && b.name === 'post') return a.postId === b.postId;
   return true;
 }
 

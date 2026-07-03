@@ -109,6 +109,7 @@ export const ru = {
   'route.feed': 'Поток',
   'route.search': 'Поиск',
   'route.mind': 'Разум',
+  'route.post': 'Перо',
   'route.profile': 'Профиль',
   'route.settings': 'Настройки',
   'route.editProfile': 'Редактировать профиль',
@@ -245,4 +246,10 @@ export const ru = {
   'search.section.people': 'Люди',
   'search.section.posts': 'Перья',
   'search.section.tags': 'Теги',
+
+  // ── Thread ──
+  'thread.empty.title': 'Пока тишина',
+  'thread.empty.desc': 'Ответь первым — начни разговор.',
+  'thread.notFound.title': 'Перо не найдено',
+  'thread.notFound.desc': 'Возможно, оно улетело.',
 } as const;

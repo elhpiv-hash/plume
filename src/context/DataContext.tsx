@@ -16,8 +16,10 @@ import {
   selectFollowingFeed,
   selectHashtagsMatching,
   selectIsFollowing,
+  selectPost,
   selectPostsByHashtag,
   selectPostsMatching,
+  selectReplies,
   selectSignalOfDay,
   selectUser,
   selectUserByUsername,
@@ -57,6 +59,10 @@ export interface DataContextValue {
   feed: (viewerId: ID | null) => PostView[];
   userPosts: (userId: ID, viewerId: ID | null) => PostView[];
   userReplies: (userId: ID, viewerId: ID | null) => PostView[];
+  /** A single hydrated feather by id (or null) — powers the thread screen. */
+  getPost: (postId: ID, viewerId: ID | null) => PostView | null;
+  /** Direct replies to a feather, oldest first (conversation order). */
+  replies: (postId: ID, viewerId: ID | null) => PostView[];
   /** Feathers carrying a hashtag — powers the tag screen. */
   postsByHashtag: (tag: string, viewerId: ID | null) => PostView[];
   /** The viewer's "Following" timeline (followed authors + self). */
@@ -118,6 +124,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         mapViews(selectUserPosts(stateRef.current, userId), viewerId),
       userReplies: (userId, viewerId) =>
         mapViews(selectUserReplies(stateRef.current, userId), viewerId),
+      getPost: (postId, viewerId) => {
+        const post = selectPost(stateRef.current, postId);
+        return post ? toPostView(stateRef.current, post, viewerId, calendarDay()) : null;
+      },
+      replies: (postId, viewerId) => mapViews(selectReplies(stateRef.current, postId), viewerId),
       postsByHashtag: (tag, viewerId) =>
         mapViews(selectPostsByHashtag(stateRef.current, tag), viewerId),
       followingFeed: (viewerId) =>

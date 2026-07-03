@@ -46,7 +46,10 @@ export function ExternalLink({ url, label, className }: ExternalLinkProps) {
     <>
       <button
         type="button"
-        onClick={() => setConfirmOpen(true)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setConfirmOpen(true);
+        }}
         className={cn(
           'inline-flex max-w-[16rem] items-center gap-1.5 text-sm text-fg underline-offset-2 hover:underline',
           className,

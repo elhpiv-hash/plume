@@ -4,6 +4,7 @@ import { SettingsScreen } from '@/features/settings/SettingsScreen';
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen';
 import { HashtagScreen } from '@/features/hashtag/HashtagScreen';
 import { SearchScreen } from '@/features/search/SearchScreen';
+import { ThreadScreen } from '@/features/thread/ThreadScreen';
 import { ComingSoon } from '@/components/common/ComingSoon';
 import { useNavigation } from '@/hooks/useNavigation';
 
@@ -23,6 +24,8 @@ export function Router() {
       return <ComingSoon icon="mind" titleKey="route.mind" descKey="mind.soon" />;
     case 'hashtag':
       return <HashtagScreen tag={route.tag} />;
+    case 'post':
+      return <ThreadScreen postId={route.postId} />;
     case 'profile':
       return <ProfileScreen username={route.username} />;
     case 'settings':

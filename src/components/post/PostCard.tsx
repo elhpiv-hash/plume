@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Modal } from '@/components/ui/Modal';
 import { PostActions } from '@/components/post/PostActions';
@@ -18,25 +18,35 @@ interface PostCardProps {
   post: PostView;
   /** Disables the entry animation when rendering static lists (e.g. profile). */
   animate?: boolean;
+  /** 'focus' = the thread's anchor feather: larger, and not itself clickable. */
+  variant?: 'default' | 'focus';
 }
 
-export function PostCard({ post, animate = true }: PostCardProps) {
+export function PostCard({ post, animate = true, variant = 'default' }: PostCardProps) {
   const { currentUser } = useAuth();
   const { navigate } = useNavigation();
   const { toggleLike, toggleRepost, raiseSignal, signalAvailable } = usePosts();
   const { t } = useI18n();
   const [replyOpen, setReplyOpen] = useState(false);
 
+  const isFocus = variant === 'focus';
   const isAuthor = currentUser?.id === post.authorId;
-  const goToAuthor = () => navigate({ name: 'profile', username: post.author.username });
+  const goToAuthor = (e: MouseEvent) => {
+    e.stopPropagation();
+    navigate({ name: 'profile', username: post.author.username });
+  };
+  // A click on the card body (not an author/entity/action/link) opens the thread.
+  const openThread = () => navigate({ name: 'post', postId: post.id });
 
   return (
     <article
+      onClick={isFocus ? undefined : openThread}
       className={cn(
-        'relative px-4 py-3.5 transition-colors duration-200',
+        'relative px-4 transition-colors duration-200',
+        isFocus ? 'py-4' : 'py-3.5 cursor-pointer',
         post.isSignalToday
           ? 'signal-aura overflow-hidden rounded-lg my-1.5 bg-signal/[0.025]'
-          : 'border-b border-border hover:bg-surface-hover/60',
+          : cn('border-b border-border', !isFocus && 'hover:bg-surface-hover/60'),
         animate && 'animate-post-enter',
       )}
     >
@@ -50,7 +60,7 @@ export function PostCard({ post, animate = true }: PostCardProps) {
 
       <div className="relative flex gap-3">
         <button type="button" onClick={goToAuthor} className="self-start no-tap" aria-label={t('post.authorProfile', { name: post.author.name })}>
-          <Avatar user={post.author} size="md" />
+          <Avatar user={post.author} size={isFocus ? 'lg' : 'md'} />
         </button>
 
         <div className="min-w-0 flex-1">
@@ -64,12 +74,27 @@ export function PostCard({ post, animate = true }: PostCardProps) {
             </button>
             <span className="text-muted truncate">@{post.author.username}</span>
             <span className="text-faint">·</span>
-            <time className="text-muted shrink-0" dateTime={new Date(post.createdAt).toISOString()}>
-              {formatTimeShort(post.createdAt)}
-            </time>
+            {/* The timestamp is the feather's permalink — keyboard-accessible route to the thread. */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openThread();
+              }}
+              className="shrink-0 text-muted hover:underline underline-offset-2 no-tap"
+            >
+              <time dateTime={new Date(post.createdAt).toISOString()}>
+                {formatTimeShort(post.createdAt)}
+              </time>
+            </button>
           </div>
 
-          <p className="mt-0.5 whitespace-pre-wrap break-words text-[0.95rem] leading-relaxed text-fg">
+          <p
+            className={cn(
+              'mt-0.5 whitespace-pre-wrap break-words leading-relaxed text-fg',
+              isFocus ? 'text-lg' : 'text-[0.95rem]',
+            )}
+          >
             <RichText text={post.text} />
           </p>
 

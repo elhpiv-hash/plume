@@ -171,6 +171,9 @@ export function dataReducer(state: DataState, action: DataAction): DataState {
 
 export const selectUser = (state: DataState, id: ID): User | undefined => state.users[id];
 
+/** A single stored feather by id, or undefined — powers the thread screen. */
+export const selectPost = (state: DataState, id: ID): Post | undefined => state.posts[id];
+
 export const selectUserByUsername = (state: DataState, username: string): User | undefined => {
   const id = state.usernameIndex[username];
   return id ? state.users[id] : undefined;

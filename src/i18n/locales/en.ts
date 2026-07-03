@@ -105,6 +105,7 @@ export const en: Dict = {
   'route.feed': 'Stream',
   'route.search': 'Search',
   'route.mind': 'Mind',
+  'route.post': 'Feather',
   'route.profile': 'Profile',
   'route.settings': 'Settings',
   'route.editProfile': 'Edit profile',
@@ -241,4 +242,10 @@ export const en: Dict = {
   'search.section.people': 'People',
   'search.section.posts': 'Feathers',
   'search.section.tags': 'Tags',
+
+  // ── Thread ──
+  'thread.empty.title': 'Quiet so far',
+  'thread.empty.desc': 'Be the first to reply — start the conversation.',
+  'thread.notFound.title': 'Feather not found',
+  'thread.notFound.desc': 'It may have flown away.',
 };
