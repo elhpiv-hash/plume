@@ -19,6 +19,10 @@ interface PostComposerProps {
   onPublished?: () => void;
   /** Compact = reply context (no large padding, tighter type). */
   compact?: boolean;
+  /** When set, the composer edits this feather instead of creating a new one. */
+  editingPostId?: ID;
+  /** Initial draft text (used to prefill when editing). */
+  initialText?: string;
 }
 
 /** Circular character meter — fills as the draft approaches the limit. */
@@ -61,13 +65,15 @@ export function PostComposer({
   autoFocus = false,
   onPublished,
   compact = false,
+  editingPostId,
+  initialText,
 }: PostComposerProps) {
   const { currentUser } = useAuth();
   const data = useData();
-  const { publish } = usePosts();
+  const { publish, editPost } = usePosts();
   const { notify } = useToast();
   const { t } = useI18n();
-  const [text, setText] = useState('');
+  const [text, setText] = useState(initialText ?? '');
   const [touched, setTouched] = useState(false);
   // @mention autocomplete: the token being typed at the caret, if any.
   const [mention, setMention] = useState<{ start: number; query: string } | null>(null);
@@ -97,8 +103,12 @@ export function PostComposer({
       notify(t('profanity.blocked'), 'danger');
       return;
     }
-    publish(text, parentId);
-    setText('');
+    if (editingPostId) {
+      editPost(editingPostId, text);
+    } else {
+      publish(text, parentId);
+      setText('');
+    }
     setTouched(false);
     onPublished?.();
   };
@@ -233,7 +243,7 @@ export function PostComposer({
           <div className="flex items-center gap-3">
             {text.length > 0 ? <CharMeter value={text.length} /> : null}
             <Button size="sm" onClick={submit} disabled={!canPublish}>
-              {parentId ? t('composer.reply') : t('composer.publish')}
+              {editingPostId ? t('edit.save') : parentId ? t('composer.reply') : t('composer.publish')}
             </Button>
           </div>
         </div>

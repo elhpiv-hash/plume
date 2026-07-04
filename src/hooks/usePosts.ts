@@ -3,7 +3,7 @@ import { useData } from '@/hooks/useData';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useI18n } from '@/hooks/useI18n';
-import type { CreatePostInput, Post, PostView } from '@/types';
+import type { CreatePostInput, ID, Post, PostView } from '@/types';
 
 interface PostActions {
   /** Whether today's single Signal is still available to the current user. */
@@ -13,6 +13,10 @@ interface PostActions {
   toggleRepost: (post: PostView) => void;
   /** Crown a post as the Signal of the day; enforces the 1/day limit. */
   raiseSignal: (post: PostView) => void;
+  toggleBookmark: (post: PostView) => void;
+  /** Edit one's own feather; ownership is re-checked in the reducer. */
+  editPost: (postId: ID, text: string) => void;
+  deletePost: (post: PostView) => void;
 }
 
 /**
@@ -66,8 +70,53 @@ export function usePosts(): PostActions {
     [currentUser, data, notify, t],
   );
 
+  const toggleBookmark = useCallback(
+    (post: PostView) => {
+      if (!currentUser) return;
+      data.toggleBookmark(currentUser.id, post.id);
+      notify(post.bookmarkedByMe ? t('toast.bookmark.removed') : t('toast.bookmark.added'));
+    },
+    [currentUser, data, notify, t],
+  );
+
+  const editPost = useCallback(
+    (postId: ID, text: string) => {
+      if (!currentUser) return;
+      data.editPost(currentUser.id, postId, text);
+      notify(t('toast.post.edited'));
+    },
+    [currentUser, data, notify, t],
+  );
+
+  const deletePost = useCallback(
+    (post: PostView) => {
+      if (!currentUser) return;
+      data.deletePost(currentUser.id, post.id);
+      notify(t('toast.post.deleted'));
+    },
+    [currentUser, data, notify, t],
+  );
+
   return useMemo(
-    () => ({ signalAvailable, publish, toggleLike, toggleRepost, raiseSignal }),
-    [signalAvailable, publish, toggleLike, toggleRepost, raiseSignal],
+    () => ({
+      signalAvailable,
+      publish,
+      toggleLike,
+      toggleRepost,
+      raiseSignal,
+      toggleBookmark,
+      editPost,
+      deletePost,
+    }),
+    [
+      signalAvailable,
+      publish,
+      toggleLike,
+      toggleRepost,
+      raiseSignal,
+      toggleBookmark,
+      editPost,
+      deletePost,
+    ],
   );
 }

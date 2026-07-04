@@ -8,6 +8,8 @@ interface PostActionsProps {
   onReply: () => void;
   onRepost: () => void;
   onLike: () => void;
+  /** When provided, renders the bookmark toggle (state read from the post). */
+  onBookmark?: () => void;
   /** Author-only Signal control. Hidden entirely for non-authors. */
   signal?: {
     canRaise: boolean;
@@ -69,7 +71,7 @@ function ActionButton({
   );
 }
 
-export function PostActions({ post, onReply, onRepost, onLike, signal }: PostActionsProps) {
+export function PostActions({ post, onReply, onRepost, onLike, onBookmark, signal }: PostActionsProps) {
   const { t } = useI18n();
   return (
     <div className="mt-2 flex items-center justify-between pr-2 max-w-md">
@@ -89,6 +91,15 @@ export function PostActions({ post, onReply, onRepost, onLike, signal }: PostAct
         filled={post.likedByMe}
         onClick={onLike}
       />
+      {onBookmark ? (
+        <ActionButton
+          icon="bookmark"
+          label={post.bookmarkedByMe ? t('action.bookmarked') : t('action.bookmark')}
+          active={post.bookmarkedByMe}
+          filled={post.bookmarkedByMe}
+          onClick={onBookmark}
+        />
+      ) : null}
       {signal?.canRaise ? (
         <ActionButton
           icon="feather"

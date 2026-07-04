@@ -1,8 +1,10 @@
 import { useState, type MouseEvent } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
+import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { PostActions } from '@/components/post/PostActions';
 import { PostComposer } from '@/components/post/PostComposer';
+import { PostMenu } from '@/components/post/PostMenu';
 import { RichText } from '@/components/post/RichText';
 import { SignalBadge } from '@/components/post/SignalBadge';
 import { SignalFeathers } from '@/components/post/SignalFeathers';
@@ -24,10 +26,13 @@ interface PostCardProps {
 
 export function PostCard({ post, animate = true, variant = 'default' }: PostCardProps) {
   const { currentUser } = useAuth();
-  const { navigate } = useNavigation();
-  const { toggleLike, toggleRepost, raiseSignal, signalAvailable } = usePosts();
+  const { navigate, back } = useNavigation();
+  const { toggleLike, toggleRepost, raiseSignal, signalAvailable, toggleBookmark, deletePost } =
+    usePosts();
   const { t } = useI18n();
   const [replyOpen, setReplyOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const isFocus = variant === 'focus';
   const isAuthor = currentUser?.id === post.authorId;
@@ -37,6 +42,12 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
   };
   // A click on the card body (not an author/entity/action/link) opens the thread.
   const openThread = () => navigate({ name: 'post', postId: post.id });
+  const confirmDelete = () => {
+    deletePost(post);
+    setDeleteOpen(false);
+    // If we deleted the thread's focus feather, leave the (now empty) thread.
+    if (isFocus) back();
+  };
 
   return (
     <article
@@ -87,6 +98,12 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
                 {formatTimeShort(post.createdAt)}
               </time>
             </button>
+            {post.editedAt ? (
+              <>
+                <span className="text-faint">·</span>
+                <span className="shrink-0 text-faint">{t('post.edited')}</span>
+              </>
+            ) : null}
           </div>
 
           <p
@@ -103,6 +120,7 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
             onReply={() => setReplyOpen(true)}
             onRepost={() => toggleRepost(post)}
             onLike={() => toggleLike(post)}
+            onBookmark={() => toggleBookmark(post)}
             signal={
               isAuthor
                 ? {
@@ -114,6 +132,13 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
             }
           />
         </div>
+
+        {/* Owner overflow menu — edit / delete. Non-authors see no menu. */}
+        {isAuthor ? (
+          <div className="-mr-1 self-start">
+            <PostMenu onEdit={() => setEditOpen(true)} onDelete={() => setDeleteOpen(true)} />
+          </div>
+        ) : null}
       </div>
 
       <Modal open={replyOpen} onClose={() => setReplyOpen(false)} title={t('post.reply.title')}>
@@ -130,6 +155,28 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
           compact
           onPublished={() => setReplyOpen(false)}
         />
+      </Modal>
+
+      <Modal open={editOpen} onClose={() => setEditOpen(false)} title={t('post.edit.title')}>
+        <PostComposer
+          editingPostId={post.id}
+          initialText={post.text}
+          autoFocus
+          compact
+          onPublished={() => setEditOpen(false)}
+        />
+      </Modal>
+
+      <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title={t('post.delete.title')}>
+        <p className="text-base leading-relaxed text-muted">{t('post.delete.body')}</p>
+        <div className="mt-5 flex items-center justify-end gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setDeleteOpen(false)}>
+            {t('edit.cancel')}
+          </Button>
+          <Button variant="danger" size="sm" onClick={confirmDelete}>
+            {t('post.delete.confirm')}
+          </Button>
+        </div>
       </Modal>
     </article>
   );

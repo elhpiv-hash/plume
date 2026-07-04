@@ -13,6 +13,7 @@ import {
   selectFeed,
   selectFollowerCount,
   selectFollowingCount,
+  selectBookmarkedPosts,
   selectFollowingFeed,
   selectHashtagsMatching,
   selectIsFollowing,
@@ -67,6 +68,8 @@ export interface DataContextValue {
   postsByHashtag: (tag: string, viewerId: ID | null) => PostView[];
   /** The viewer's "Following" timeline (followed authors + self). */
   followingFeed: (viewerId: ID | null) => PostView[];
+  /** A user's private bookmarked feathers — only meaningful for the owner. */
+  bookmarkedPosts: (userId: ID, viewerId: ID | null) => PostView[];
   /** User suggestions for the composer's @mention autocomplete. */
   suggestUsers: (query: string, limit?: number) => User[];
   /** Search: feathers whose text matches the query. */
@@ -87,6 +90,11 @@ export interface DataContextValue {
   createPost: (input: CreatePostInput) => Post;
   toggleLike: (postId: ID, userId: ID) => void;
   toggleRepost: (postId: ID, userId: ID) => void;
+  toggleBookmark: (userId: ID, postId: ID) => void;
+  /** Edit a feather's text — a no-op unless the caller is its author. */
+  editPost: (userId: ID, postId: ID, text: string) => void;
+  /** Delete a feather (and its reply subtree) — author-only. */
+  deletePost: (userId: ID, postId: ID) => void;
   setFollow: (followerId: ID, followingId: ID, following: boolean) => void;
   setSignal: (postId: ID, userId: ID) => Result<void>;
 }
@@ -133,6 +141,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         mapViews(selectPostsByHashtag(stateRef.current, tag), viewerId),
       followingFeed: (viewerId) =>
         viewerId ? mapViews(selectFollowingFeed(stateRef.current, viewerId), viewerId) : [],
+      bookmarkedPosts: (userId, viewerId) =>
+        mapViews(selectBookmarkedPosts(stateRef.current, userId), viewerId),
       suggestUsers: (query, limit) => selectUsersMatching(stateRef.current, query, limit),
       postsMatching: (query, viewerId, limit) =>
         mapViews(selectPostsMatching(stateRef.current, query, limit), viewerId),
@@ -190,6 +200,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       toggleLike: (postId, userId) => dispatch({ type: 'TOGGLE_LIKE', postId, userId }),
       toggleRepost: (postId, userId) => dispatch({ type: 'TOGGLE_REPOST', postId, userId }),
+      toggleBookmark: (userId, postId) => dispatch({ type: 'TOGGLE_BOOKMARK', userId, postId }),
+      editPost: (userId, postId, text) =>
+        dispatch({ type: 'EDIT_POST', userId, postId, text: text.trim(), editedAt: Date.now() }),
+      deletePost: (userId, postId) => dispatch({ type: 'DELETE_POST', userId, postId }),
       setFollow: (followerId, followingId, following) =>
         dispatch({ type: 'SET_FOLLOW', followerId, followingId, following }),
 

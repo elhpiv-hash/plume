@@ -85,12 +85,20 @@ export interface Post {
    * day, or null. At most one post per author may hold a given day.
    */
   signalDay: CalendarDay | null;
+  /** Set when the author has edited the feather. Absent = never edited. */
+  editedAt?: number;
 }
 
 /** A directed follow edge. */
 export interface Follow {
   followerId: ID;
   followingId: ID;
+}
+
+/** A private user↔post bookmark edge (only its owner can see it). */
+export interface Bookmark {
+  userId: ID;
+  postId: ID;
 }
 
 /** The authenticated session — only ever references a user id. */
@@ -130,6 +138,8 @@ export interface PostView extends Post {
   replyCount: number;
   likedByMe: boolean;
   repostedByMe: boolean;
+  /** True when the viewer has bookmarked this feather. */
+  bookmarkedByMe: boolean;
   /** True when signalDay equals today — drives the premium treatment. */
   isSignalToday: boolean;
 }

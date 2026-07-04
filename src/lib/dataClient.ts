@@ -13,6 +13,7 @@
  */
 
 import type {
+  Bookmark,
   CalendarDay,
   Follow,
   ID,
@@ -35,6 +36,8 @@ export interface DataState {
   /** Insertion order, newest first. Authoritative ordering for the feed. */
   postIds: ID[];
   follows: Follow[];
+  /** Private user↔post bookmarks, in the order they were added. */
+  bookmarks: Bookmark[];
 }
 
 export const initialDataState: DataState = {
@@ -44,6 +47,7 @@ export const initialDataState: DataState = {
   posts: {},
   postIds: [],
   follows: [],
+  bookmarks: [],
 };
 
 // ──────────────────────────────── Actions ───────────────────────────────
@@ -56,7 +60,10 @@ export type DataAction =
   | { type: 'TOGGLE_LIKE'; postId: ID; userId: ID }
   | { type: 'TOGGLE_REPOST'; postId: ID; userId: ID }
   | { type: 'SET_FOLLOW'; followerId: ID; followingId: ID; following: boolean }
-  | { type: 'SET_SIGNAL'; postId: ID; userId: ID; day: CalendarDay };
+  | { type: 'SET_SIGNAL'; postId: ID; userId: ID; day: CalendarDay }
+  | { type: 'TOGGLE_BOOKMARK'; postId: ID; userId: ID }
+  | { type: 'EDIT_POST'; postId: ID; userId: ID; text: string; editedAt: number }
+  | { type: 'DELETE_POST'; postId: ID; userId: ID };
 
 // ──────────────────────────────── Reducer ───────────────────────────────
 
@@ -158,6 +165,55 @@ export function dataReducer(state: DataState, action: DataAction): DataState {
       }
       posts[target.id] = { ...posts[target.id]!, signalDay: action.day };
       return { ...state, posts };
+    }
+
+    case 'TOGGLE_BOOKMARK': {
+      const { userId, postId } = action;
+      const has = state.bookmarks.some((b) => b.userId === userId && b.postId === postId);
+      return {
+        ...state,
+        bookmarks: has
+          ? state.bookmarks.filter((b) => !(b.userId === userId && b.postId === postId))
+          : [...state.bookmarks, { userId, postId }],
+      };
+    }
+
+    case 'EDIT_POST': {
+      const post = state.posts[action.postId];
+      // Ownership is enforced in the core: a non-author edit is a no-op.
+      if (!post || post.authorId !== action.userId) return state;
+      const next: Post = { ...post, text: action.text, editedAt: action.editedAt };
+      return { ...state, posts: { ...state.posts, [post.id]: next } };
+    }
+
+    case 'DELETE_POST': {
+      const target = state.posts[action.postId];
+      if (!target || target.authorId !== action.userId) return state;
+
+      // Cascade: delete the feather and its whole reply subtree, so nothing is
+      // left pointing at a missing parent (no dangling parentId / bookmarks).
+      const doomed = new Set<ID>([action.postId]);
+      for (;;) {
+        let grew = false;
+        for (const p of Object.values(state.posts)) {
+          if (p.parentId && doomed.has(p.parentId) && !doomed.has(p.id)) {
+            doomed.add(p.id);
+            grew = true;
+          }
+        }
+        if (!grew) break;
+      }
+
+      const posts: Record<ID, Post> = {};
+      for (const [id, post] of Object.entries(state.posts)) {
+        if (!doomed.has(id)) posts[id] = post;
+      }
+      return {
+        ...state,
+        posts,
+        postIds: state.postIds.filter((id) => !doomed.has(id)),
+        bookmarks: state.bookmarks.filter((b) => !doomed.has(b.postId)),
+      };
     }
 
     default: {
@@ -301,6 +357,20 @@ export const selectFollowingCount = (state: DataState, userId: ID): number =>
 export const selectIsFollowing = (state: DataState, followerId: ID, followingId: ID): boolean =>
   state.follows.some((f) => f.followerId === followerId && f.followingId === followingId);
 
+export const selectIsBookmarked = (state: DataState, userId: ID, postId: ID): boolean =>
+  state.bookmarks.some((b) => b.userId === userId && b.postId === postId);
+
+/** A user's bookmarked feathers, most recently saved first. Private to the owner. */
+export function selectBookmarkedPosts(state: DataState, userId: ID): Post[] {
+  const posts: Post[] = [];
+  for (const b of state.bookmarks) {
+    if (b.userId !== userId) continue;
+    const post = state.posts[b.postId];
+    if (post) posts.push(post);
+  }
+  return posts.reverse();
+}
+
 /** The author's signal post for a given day, if any. Drives the daily limit. */
 export function selectSignalOfDay(
   state: DataState,
@@ -332,6 +402,7 @@ export function toPostView(
     replyCount: selectReplyCount(state, post.id),
     likedByMe: viewerId !== null && post.likedBy.includes(viewerId),
     repostedByMe: viewerId !== null && post.repostedBy.includes(viewerId),
+    bookmarkedByMe: viewerId !== null && selectIsBookmarked(state, viewerId, post.id),
     isSignalToday: post.signalDay === today,
   };
 }

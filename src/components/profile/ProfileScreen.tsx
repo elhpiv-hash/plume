@@ -37,14 +37,19 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
 
   const viewerId = currentUser?.id ?? null;
   const isOwn = currentUser?.id === user.id;
-  const posts: PostView[] = tab === 'posts'
-    ? data.userPosts(user.id, viewerId)
-    : data.userReplies(user.id, viewerId);
+  // "Saved" is private: fall back to Posts if a stale tab lands on someone else.
+  const activeTab: ProfileTab = tab === 'saved' && !isOwn ? 'posts' : tab;
+  const posts: PostView[] =
+    activeTab === 'saved'
+      ? data.bookmarkedPosts(user.id, viewerId)
+      : activeTab === 'replies'
+        ? data.userReplies(user.id, viewerId)
+        : data.userPosts(user.id, viewerId);
 
   return (
     <div>
       <ProfileHeader user={user} />
-      <ProfileTabs active={tab} onChange={setTab} />
+      <ProfileTabs active={activeTab} onChange={setTab} showSaved={isOwn} />
 
       {posts.length > 0 ? (
         <div>
@@ -52,7 +57,7 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
             <PostCard key={post.id} post={post} animate={false} />
           ))}
         </div>
-      ) : tab === 'posts' && isOwn ? (
+      ) : activeTab === 'posts' && isOwn ? (
         <div>
           <EmptyState
             icon="feather"
@@ -63,17 +68,23 @@ export function ProfileScreen({ username }: ProfileScreenProps) {
             <PostComposer />
           </div>
         </div>
-      ) : tab === 'posts' ? (
+      ) : activeTab === 'posts' ? (
         <EmptyState
           icon="feather"
           title={t('profile.empty.other.title')}
           description={t('profile.empty.other.desc', { name: user.name })}
         />
-      ) : (
+      ) : activeTab === 'replies' ? (
         <EmptyState
           icon="reply"
           title={t('profile.replies.empty.title')}
           description={isOwn ? t('profile.replies.empty.own') : t('profile.replies.empty.other', { name: user.name })}
+        />
+      ) : (
+        <EmptyState
+          icon="bookmark"
+          title={t('profile.saved.empty.title')}
+          description={t('profile.saved.empty.desc')}
         />
       )}
     </div>

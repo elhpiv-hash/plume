@@ -29,7 +29,9 @@ export type IconName =
   | 'camera'
   | 'image'
   | 'search'
-  | 'mind';
+  | 'mind'
+  | 'bookmark'
+  | 'more';
 
 interface IconProps {
   name: IconName;
@@ -249,6 +251,21 @@ const PATHS: Record<IconName, (filled: boolean) => ReactNode> = {
       <circle cx="12" cy="12" r="2" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.7} />
       <circle cx="8" cy="17.5" r="1.5" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6} />
       <circle cx="17" cy="16.5" r="1.7" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.6} />
+    </>
+  ),
+  bookmark: (filled) => (
+    <path
+      d="M6.5 4.5h11a1 1 0 0 1 1 1v14.1a.5.5 0 0 1-.78.42L12 16.1l-5.72 3.92A.5.5 0 0 1 5.5 19.6V5.5a1 1 0 0 1 1-1z"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={1.7}
+    />
+  ),
+  more: () => (
+    <>
+      <circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none" />
     </>
   ),
 };
