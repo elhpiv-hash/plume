@@ -3,12 +3,12 @@ import { useData } from '@/hooks/useData';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useI18n } from '@/hooks/useI18n';
-import type { CreatePostInput, ID, Post, PostView } from '@/types';
+import type { CreatePostInput, ID, Post, PostMedia, PostView } from '@/types';
 
 interface PostActions {
   /** Whether today's single Signal is still available to the current user. */
   signalAvailable: boolean;
-  publish: (text: string, parentId?: string | null) => Post | null;
+  publish: (text: string, parentId?: string | null, media?: PostMedia[]) => Post | null;
   toggleLike: (post: PostView) => void;
   toggleRepost: (post: PostView) => void;
   /** Crown a post as the Signal of the day; enforces the 1/day limit. */
@@ -32,9 +32,9 @@ export function usePosts(): PostActions {
   const signalAvailable = currentUser ? !data.signalUsedToday(currentUser.id) : false;
 
   const publish = useCallback(
-    (text: string, parentId: string | null = null): Post | null => {
+    (text: string, parentId: string | null = null, media?: PostMedia[]): Post | null => {
       if (!currentUser) return null;
-      const input: CreatePostInput = { authorId: currentUser.id, text, parentId };
+      const input: CreatePostInput = { authorId: currentUser.id, text, parentId, media };
       return data.createPost(input);
     },
     [currentUser, data],

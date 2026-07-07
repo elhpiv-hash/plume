@@ -69,6 +69,18 @@ export type ProfilePatch = Partial<
   >
 >;
 
+/**
+ * An image attached to a feather. `url` is a compact resized dataURL today; the
+ * shape is future-proof — with a backend it simply becomes an uploaded file URL,
+ * the type unchanged.
+ */
+export interface PostMedia {
+  url: string;
+  width: number;
+  height: number;
+  alt?: string;
+}
+
 export interface Post {
   id: ID;
   authorId: ID;
@@ -87,6 +99,8 @@ export interface Post {
   signalDay: CalendarDay | null;
   /** Set when the author has edited the feather. Absent = never edited. */
   editedAt?: number;
+  /** Attached images. Absent/empty = a text-only feather (back-compatible). */
+  media?: PostMedia[];
 }
 
 /** A directed follow edge. */
@@ -128,6 +142,7 @@ export interface CreatePostInput {
   authorId: ID;
   text: string;
   parentId?: ID | null;
+  media?: PostMedia[];
 }
 
 /** A post hydrated with everything the UI needs to render one card. */

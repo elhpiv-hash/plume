@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { PostActions } from '@/components/post/PostActions';
 import { PostComposer } from '@/components/post/PostComposer';
+import { PostMediaGrid } from '@/components/post/PostMediaGrid';
 import { PostMenu } from '@/components/post/PostMenu';
 import { RichText } from '@/components/post/RichText';
 import { SignalBadge } from '@/components/post/SignalBadge';
@@ -106,14 +107,18 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
             ) : null}
           </div>
 
-          <p
-            className={cn(
-              'mt-0.5 whitespace-pre-wrap break-words leading-relaxed text-fg',
-              isFocus ? 'text-lg' : 'text-[0.95rem]',
-            )}
-          >
-            <RichText text={post.text} />
-          </p>
+          {post.text ? (
+            <p
+              className={cn(
+                'mt-0.5 whitespace-pre-wrap break-words leading-relaxed text-fg',
+                isFocus ? 'text-lg' : 'text-[0.95rem]',
+              )}
+            >
+              <RichText text={post.text} />
+            </p>
+          ) : null}
+
+          {post.media && post.media.length > 0 ? <PostMediaGrid media={post.media} /> : null}
 
           <PostActions
             post={post}
@@ -161,6 +166,7 @@ export function PostCard({ post, animate = true, variant = 'default' }: PostCard
         <PostComposer
           editingPostId={post.id}
           initialText={post.text}
+          canBeEmpty={Boolean(post.media && post.media.length > 0)}
           autoFocus
           compact
           onPublished={() => setEditOpen(false)}

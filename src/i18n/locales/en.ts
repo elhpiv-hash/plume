@@ -85,6 +85,13 @@ export const en: Dict = {
   'composer.publish': 'Publish',
   'composer.reply': 'Reply',
 
+  // ── Media ──
+  'media.attach': 'Add photo',
+  'media.remove': 'Remove photo',
+  'media.open': 'Open photo',
+  'media.error': 'Couldn’t add the photo.',
+  'media.limit': 'Up to {max} photos per feather.',
+
   // ── Post actions / card ──
   'action.reply': 'Reply',
   'action.repost': 'Uplift',

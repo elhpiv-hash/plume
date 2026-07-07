@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { usePosts } from '@/hooks/usePosts';
@@ -8,9 +9,24 @@ import { useToast } from '@/hooks/useToast';
 import { useI18n } from '@/hooks/useI18n';
 import { POST_MAX, validatePostText } from '@/lib/validators';
 import { containsProfanity } from '@/lib/profanity';
+import { fileToResizedDataUrl } from '@/lib/imageResize';
 import { findMentionQuery } from '@/lib/richText';
 import { cn } from '@/lib/cn';
-import type { ID } from '@/types';
+import type { ID, PostMedia } from '@/types';
+
+/** Up to this many images per feather; each is resized before it ever hits state. */
+const MEDIA_MAX = 4;
+const MEDIA_DIM = 1280;
+
+/** Read a resized dataURL's pixel size for the media record. */
+function measureDataUrl(dataUrl: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = () => resolve({ width: 0, height: 0 });
+    img.src = dataUrl;
+  });
+}
 
 interface PostComposerProps {
   parentId?: ID | null;
@@ -23,6 +39,8 @@ interface PostComposerProps {
   editingPostId?: ID;
   /** Initial draft text (used to prefill when editing). */
   initialText?: string;
+  /** Allow an empty text (e.g. editing an image-only feather). */
+  canBeEmpty?: boolean;
 }
 
 /** Circular character meter — fills as the draft approaches the limit. */
@@ -67,6 +85,7 @@ export function PostComposer({
   compact = false,
   editingPostId,
   initialText,
+  canBeEmpty = false,
 }: PostComposerProps) {
   const { currentUser } = useAuth();
   const data = useData();
@@ -78,7 +97,10 @@ export function PostComposer({
   // @mention autocomplete: the token being typed at the caret, if any.
   const [mention, setMention] = useState<{ start: number; query: string } | null>(null);
   const [mentionIndex, setMentionIndex] = useState(0);
+  const [media, setMedia] = useState<PostMedia[]>([]);
+  const [uploading, setUploading] = useState(false);
   const areaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const suggestions = mention ? data.suggestUsers(mention.query, 6) : [];
 
@@ -93,7 +115,11 @@ export function PostComposer({
   if (!currentUser) return null;
 
   const error = validatePostText(text);
-  const canPublish = error === null;
+  const hasMedia = media.length > 0;
+  // A feather is valid with text, or with at least one image (or an intentionally
+  // empty edit of an image feather). An over-limit text is never valid.
+  const emptyButOk = error === 'validate.post.empty' && (hasMedia || canBeEmpty);
+  const canPublish = error === null || emptyButOk;
 
   const submit = () => {
     setTouched(true);
@@ -106,12 +132,43 @@ export function PostComposer({
     if (editingPostId) {
       editPost(editingPostId, text);
     } else {
-      publish(text, parentId);
+      publish(text, parentId, media.length ? media : undefined);
       setText('');
+      setMedia([]);
     }
     setTouched(false);
     onPublished?.();
   };
+
+  // Resize each picked image (never storing a giant base64) and keep within the
+  // per-feather cap. Non-images / broken files surface a toast, not a crash.
+  const onFiles = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = ''; // allow re-picking the same file
+    if (files.length === 0) return;
+    const room = MEDIA_MAX - media.length;
+    if (room <= 0) {
+      notify(t('media.limit', { max: MEDIA_MAX }), 'danger');
+      return;
+    }
+    if (files.length > room) notify(t('media.limit', { max: MEDIA_MAX }), 'danger');
+
+    setUploading(true);
+    const added: PostMedia[] = [];
+    for (const file of files.slice(0, room)) {
+      try {
+        const url = await fileToResizedDataUrl(file, { maxW: MEDIA_DIM, maxH: MEDIA_DIM, quality: 0.82 });
+        const { width, height } = await measureDataUrl(url);
+        added.push({ url, width, height });
+      } catch {
+        notify(t('media.error'), 'danger');
+      }
+    }
+    if (added.length > 0) setMedia((prev) => [...prev, ...added].slice(0, MEDIA_MAX));
+    setUploading(false);
+  };
+
+  const removeMedia = (index: number) => setMedia((prev) => prev.filter((_, i) => i !== index));
 
   // Recompute the active @mention token from the current value + caret.
   const detectMention = (value: string, caret: number) => {
@@ -231,15 +288,47 @@ export function PostComposer({
             </ul>
           ) : null}
         </div>
-        {touched && error ? (
+        {touched && error && !emptyButOk ? (
           <p className="text-sm text-danger animate-fade-in">
             {t(error, { over: Math.max(0, text.length - POST_MAX) })}
           </p>
         ) : null}
+
+        {media.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {media.map((m, i) => (
+              <div key={i} className="relative h-20 w-20 overflow-hidden rounded-md border border-border">
+                <img src={m.url} alt="" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  aria-label={t('media.remove')}
+                  onClick={() => removeMedia(i)}
+                  className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-bg/70 text-fg backdrop-blur transition-colors hover:bg-bg"
+                >
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
         <div className="mt-2 flex items-center justify-between border-t border-border pt-3">
-          <span className="text-xs text-faint">
-            {parentId ? t('composer.replyContext') : t('composer.hint')}
-          </span>
+          <div className="flex items-center gap-2">
+            {!editingPostId ? (
+              <button
+                type="button"
+                aria-label={t('media.attach')}
+                disabled={uploading || media.length >= MEDIA_MAX}
+                onClick={() => fileInputRef.current?.click()}
+                className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-surface-hover hover:text-fg disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Icon name={uploading ? 'feather' : 'image'} size={18} className={uploading ? 'animate-signal-pulse' : ''} />
+              </button>
+            ) : null}
+            <span className="text-xs text-faint">
+              {parentId ? t('composer.replyContext') : t('composer.hint')}
+            </span>
+          </div>
           <div className="flex items-center gap-3">
             {text.length > 0 ? <CharMeter value={text.length} /> : null}
             <Button size="sm" onClick={submit} disabled={!canPublish}>
@@ -247,6 +336,17 @@ export function PostComposer({
             </Button>
           </div>
         </div>
+
+        {!editingPostId ? (
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            onChange={onFiles}
+          />
+        ) : null}
       </div>
     </div>
   );

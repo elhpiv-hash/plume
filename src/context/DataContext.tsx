@@ -193,6 +193,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
           likedBy: [],
           repostedBy: [],
           signalDay: null,
+          ...(input.media && input.media.length > 0 ? { media: input.media } : {}),
         };
         dispatch({ type: 'CREATE_POST', post });
         return post;

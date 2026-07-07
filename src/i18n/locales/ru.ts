@@ -89,6 +89,13 @@ export const ru = {
   'composer.publish': 'Опубликовать',
   'composer.reply': 'Ответить',
 
+  // ── Media ──
+  'media.attach': 'Добавить фото',
+  'media.remove': 'Убрать фото',
+  'media.open': 'Открыть фото',
+  'media.error': 'Не удалось добавить фото.',
+  'media.limit': 'Максимум {max} фото на перо.',
+
   // ── Post actions / card ──
   'action.reply': 'Ответить',
   'action.repost': 'Подхватить',
